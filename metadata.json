@@ -1,0 +1,6 @@
+{
+  "name": "CrustFund Degen Crumb Converter",
+  "description": "A cartoon meme-style crypto dust converter. Sweep your degen 'crumbs' and bake them into fresh native assets across EVM chains like Base, Ethereum, and Polygon. Features a secure Solidity Sweeper contract with a 5% Chef's Fee.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
