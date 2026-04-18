@@ -29,7 +29,7 @@ export interface Network {
 export const NETWORKS: Network[] = [
   { id: 'base', name: 'Base', icon: '🔵', stickerUrl: 'Base_sticker.png', nativeCurrency: 'ETH', chainId: 8453 },
   { id: 'eth', name: 'Ethereum', icon: '💎', stickerUrl: 'Ethereum_sticker.png', nativeCurrency: 'ETH', chainId: 1 },
-  { id: 'polygon', name: 'Polygon', icon: '🟣', stickerUrl: 'Polygon_sticker.png', nativeCurrency: 'POL', chainId: 137 },
+  { id: 'polygon', name: 'Polygon', icon: '🟣', stickerUrl: 'Ethereum_sticker.png', nativeCurrency: 'POL', chainId: 137 },
   { id: 'avalanche', name: 'Avalanche', icon: '🔺', stickerUrl: 'Avalanche_sticker.png', nativeCurrency: 'AVAX', chainId: 43114 },
   { id: 'bsc', name: 'BSC', icon: '🟡', stickerUrl: 'BSC_sticker.png', nativeCurrency: 'BNB', chainId: 56 },
   { id: 'arbitrum', name: 'Arbitrum', icon: '💙', stickerUrl: 'Arbitrum_sticker.png', nativeCurrency: 'ETH', chainId: 42161 },
