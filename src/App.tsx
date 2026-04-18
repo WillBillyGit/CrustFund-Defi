@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Settings, 
@@ -20,7 +20,10 @@ import {
   TrendingUp,
   Skull,
   Ghost,
-  Smile
+  Smile,
+  ShieldAlert,
+  ShieldCheck,
+  Ban
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -47,7 +50,7 @@ const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolea
         transition={{ duration: 0.3, repeat: Infinity }}
       >
         <img 
-          src={isBaking ? "Lever Pulled (Profit Frenzy Mode).jpg" : "Mascot Crusty the Melted Patty (Default Happy Mode).jpg"} 
+          src={isBaking ? "Lever Pulled (Profit Frenzy Mode).jpg" : "crustfundsweeper.jpg"} 
           alt="Mascot" 
           className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
           referrerPolicy="no-referrer"
@@ -64,8 +67,8 @@ const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolea
             transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.15 }}
             className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20"
           >
-            <div className="bg-white border-4 border-meme-black rounded-full p-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <Icon className="w-8 h-8 text-meme-pink fill-meme-pink" />
+            <div className="bg-oven-orange border-4 border-messy-border rounded-full p-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)]">
+              <Icon className="w-8 h-8 text-white fill-white/20" />
             </div>
           </motion.div>
         ))}
@@ -82,33 +85,99 @@ interface TokenCardProps {
 }
 
 const TokenCard = ({ token, isSelected, onToggle }: TokenCardProps) => {
+  const isRisky = token.risk && (token.risk.score < 60 || token.risk.isHoneypot || token.risk.isPhishing || token.risk.isUnverified);
+
   return (
     <motion.div
       layout
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      whileHover={{ scale: 1.05, rotate: 1 }}
+      whileHover={{ scale: 1.02, y: -2 }}
       onClick={onToggle}
       className={cn(
-        "p-6 rounded-[1.5rem] border-4 cursor-pointer transition-all flex items-center justify-between mb-4",
+        "p-6 rounded-lg border-4 cursor-pointer transition-all flex flex-col mb-4 relative",
         isSelected 
-          ? "bg-meme-pink border-meme-black text-white shadow-[4px_4px_0px_0px_rgba(28,28,30,1)]" 
-          : "bg-white border-meme-black hover:bg-bakery-blue/20"
+          ? "bg-oven-orange/20 border-oven-orange text-crust shadow-[inset_0_0_15px_rgba(255,140,0,0.1)]" 
+          : "bg-meme-black/70 border-messy-border hover:border-oven-orange/50",
+        isRisky && "border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]"
       )}
     >
-      <div className="flex items-center gap-4">
-        <div className="w-14 h-14 rounded-full bg-bakery-blue border-4 border-meme-black flex items-center justify-center font-display text-2xl text-meme-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-          {token.symbol[0]}
+      <div className="flex items-center justify-between w-full">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-lg bg-meme-black border-4 border-messy-border flex items-center justify-center font-display text-2xl text-parchment shadow-[2px_2px_0px_0px_rgba(0,0,0,0.5)] overflow-hidden">
+            {token.icon ? (
+              <img 
+                src={token.icon} 
+                alt={token.symbol} 
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            ) : null}
+            <div className={cn("w-full h-full items-center justify-center", token.icon ? "hidden" : "flex")}>
+              {token.symbol[0]}
+            </div>
+          </div>
+          <div>
+            <div className="font-display text-2xl uppercase tracking-wider flex items-center gap-2 text-oven-orange">
+              {token.symbol}
+              {token.risk && (
+                token.risk.isHoneypot ? (
+                  <Ban className="w-5 h-5 text-red-500" title="Possible Honeypot!" />
+                ) : isRisky ? (
+                  <ShieldAlert className="w-5 h-5 text-red-500" title="High Risk Token" />
+                ) : (
+                  <ShieldCheck className="w-5 h-5 text-green-500" title="Security Verified" />
+                )
+              )}
+            </div>
+            <div className={cn("text-xs font-bold", isSelected ? "text-crust" : "text-parchment/60")}>{token.name}</div>
+          </div>
         </div>
-        <div>
-          <div className="font-display text-2xl uppercase tracking-wider">{token.symbol}</div>
-          <div className={cn("text-sm font-bold", isSelected ? "text-white/80" : "text-meme-black/40")}>{token.name}</div>
+        <div className="text-right">
+          <div className="font-mono text-lg font-bold text-crust">{token.balance}</div>
+          <div className="flex flex-col items-end">
+            <div className={cn("text-sm font-bold font-mono", isSelected ? "text-oven-orange" : "text-oven-orange/70")}>
+              ${token.valueUsd.toFixed(2)}
+            </div>
+            <div className={cn("text-[8px] font-black uppercase tracking-tighter opacity-40", isSelected ? "text-crust" : "text-parchment")}>
+              {token.currentPriceUsd ? `$${token.currentPriceUsd.toLocaleString(undefined, { maximumFractionDigits: 6 })}` : '...'}
+            </div>
+          </div>
         </div>
       </div>
-      <div className="text-right">
-        <div className="font-mono text-lg font-bold">{token.balance}</div>
-        <div className={cn("text-sm font-bold font-mono", isSelected ? "text-bakery-deep" : "text-meme-pink")}>${token.valueUsd.toFixed(2)}</div>
-      </div>
+
+      {token.risk && (isRisky || token.risk.buyTax || token.risk.sellTax) && (
+        <div className={cn(
+          "mt-4 p-2 rounded-xl border-2 flex flex-wrap gap-2 text-[10px] uppercase font-black",
+          isSelected ? "bg-white/10 border-white/20" : "bg-meme-black/5 border-meme-black/10"
+        )}>
+          {token.risk.isHoneypot && <Badge variant="destructive" className="bg-red-600">HONEYPOT</Badge>}
+          {token.risk.isUnverified && <Badge variant="outline" className="text-orange-500 border-orange-500">UNVERIFIED</Badge>}
+          {token.risk.isPhishing && <Badge variant="destructive" className="bg-red-800">SCAM</Badge>}
+          {(token.risk.buyTax || token.risk.sellTax) && (
+            <span className="flex items-center gap-1">
+              TAX: {token.risk.buyTax || '0'}% | {token.risk.sellTax || '0'}%
+            </span>
+          )}
+          <span className={cn(
+            "ml-auto font-mono",
+            token.risk.score > 80 ? "text-green-500" : token.risk.score > 50 ? "text-orange-500" : "text-red-500"
+          )}>
+            SAFETY: {token.risk.score}/100
+          </span>
+        </div>
+      )}
+
+      {isSelected && isRisky && (
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-3 bg-red-500/20 border-2 border-red-500 p-2 rounded-xl flex items-center gap-2 text-[10px] text-red-500 font-bold"
+        >
+          <AlertCircle className="w-4 h-4" />
+          DYOR! THIS TOKEN HAS RED FLAGS. BAKE WITH CAUTION.
+        </motion.div>
+      )}
     </motion.div>
   );
 };
@@ -121,18 +190,26 @@ declare global {
 
 // --- Constants & Types ---
 
+// PROD CONTRACTS - Replace with your actual deployed addresses!
 const CONTRACT_ADDRESSES: Record<string, string> = {
-  base: "0x8453...Bake",
-  eth: "0x1234...Bake",
-  polygon: "0x137...Bake",
-  avalanche: "0x43114...Bake",
-  bsc: "0x56...Bake",
-  arbitrum: "0x42161...Bake",
+  base: "0x0CDcD1499558C603B0244C66E7f9561C94dC3f31",
+  eth: "0x0000000000000000000000000000000000000000",
+  polygon: "0x0000000000000000000000000000000000000000",
+  avalanche: "0x0000000000000000000000000000000000000000",
+  bsc: "0x0000000000000000000000000000000000000000",
+  arbitrum: "0x0000000000000000000000000000000000000000",
 };
 
 const SWEEPER_ABI = [
   "function bakeCrumbs(address[] tokens, uint256[] amountsIn, uint256[] minAmountsOut) external",
   "event CrumbsBaked(address indexed user, uint256 totalReceived, uint256 feeTaken)"
+];
+
+const ERC20_ABI = [
+  "function approve(address spender, uint256 amount) external returns (bool)",
+  "function allowance(address owner, address spender) external view returns (uint256)",
+  "function balanceOf(address account) external view returns (uint256)",
+  "function decimals() external view returns (uint8)"
 ];
 
 const Sparkles = ({ count = 20 }: { count?: number }) => {
@@ -163,29 +240,240 @@ export default function App() {
   const [isBaking, setIsBaking] = useState(false);
   const [bakeProgress, setBakeProgress] = useState(0);
   const [account, setAccount] = useState<string | null>(null);
-  const [prices, setPrices] = useState<Record<string, number>>({});
-
+  const [isLoadingPrices, setIsLoadingPrices] = useState(false);
+  const [isLoadingRisk, setIsLoadingRisk] = useState(false);
+  const [bakingStatus, setBakingStatus] = useState<string>("");
+  const [isSyncing, setIsSyncing] = useState(false);
   const CHEF_FEE_PERCENT = 5; // 5% fee for profitability
 
-  // Simulate real-time price updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPrices(prev => {
-        const newPrices: Record<string, number> = { ...prev };
-        tokens.forEach(t => {
-          const change = (Math.random() - 0.5) * 0.05; // +/- 5% (more volatile for memes)
-          newPrices[t.symbol] = (prev[t.symbol] || t.valueUsd) * (1 + change);
-        });
-        return newPrices;
+  const ALCHEMY_KEY = (import.meta as any).env.VITE_ALCHEMY_API_KEY;
+
+  // Fetch real-time prices from DexScreener (more resilient implementation)
+  const fetchPrices = async () => {
+    if (!tokens.length) return;
+
+    setIsLoadingPrices(true);
+    try {
+      // Filter out any invalid addresses and limit to DexScreener batch size (30)
+      const validAddresses = tokens
+        .map(t => t.id)
+        .filter(id => id && id.startsWith('0x'))
+        .slice(0, 30);
+
+      if (validAddresses.length === 0) return;
+
+      const addresses = validAddresses.join(',');
+      
+      // Use a more standard fetch with timeout/signal support if needed, but keeping it simple for now
+      // Added cache: 'no-cache' and mode: 'cors' to try and bypass browser-level caching/CORS issues
+      const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${addresses}`, {
+        method: 'GET',
+        headers: { 
+          'Accept': 'application/json'
+        },
+        mode: 'cors',
+        cache: 'no-cache'
       });
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [tokens]);
+      
+      if (!response.ok) {
+        throw new Error(`Price fetch failed with status: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.pairs && data.pairs.length > 0) {
+        setTokens(prev => prev.map(token => {
+          const tokenAddress = token.id.toLowerCase();
+          const pairs = data.pairs.filter((p: any) => 
+            p.baseToken.address.toLowerCase() === tokenAddress || 
+            p.quoteToken.address.toLowerCase() === tokenAddress
+          );
+          
+          if (pairs.length > 0) {
+            // Prefer pairs where the token is the base token
+            const basePairs = pairs.filter((p: any) => p.baseToken.address.toLowerCase() === tokenAddress);
+            const targetPairs = basePairs.length > 0 ? basePairs : pairs;
+
+            // Sort by liquidity to get the most reliable price
+            const bestPair = targetPairs.sort((a: any, b: any) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0))[0];
+            const newPrice = parseFloat(bestPair.priceUsd);
+            
+            if (!isNaN(newPrice)) {
+              return {
+                ...token,
+                currentPriceUsd: newPrice,
+                valueUsd: parseFloat(token.balance) * newPrice
+              };
+            }
+          }
+          return token;
+        }));
+      }
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+        console.warn("DexScreener API blocked by browser/network. This is usually CORS or an ad-blocker.");
+      } else {
+        console.error("DexScreener API Error:", error);
+      }
+    } finally {
+      setIsLoadingPrices(false);
+    }
+  };
+
+  // Fetch token risk scores from GoPlus Security
+  const fetchRiskScores = async () => {
+    if (!tokens.length || !selectedNetwork.chainId) return;
+
+    setIsLoadingRisk(true);
+    try {
+      const addresses = tokens.map(t => t.id).join(',');
+      const response = await fetch(
+        `https://api.gopluslabs.io/api/v1/token_security/${selectedNetwork.chainId}?contract_addresses=${addresses}`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Risk fetch failed with status: ${response.status}`);
+      }
+
+      const res = await response.json();
+      const riskData = res.result;
+
+      if (riskData) {
+        setTokens(prev => prev.map(token => {
+          const security = riskData[token.id.toLowerCase()];
+          if (security) {
+            // Calculate a basic safety score
+            let score = 100;
+            if (security.is_honeypot === "1") score -= 80;
+            if (security.is_open_source === "0") score -= 30;
+            if (security.is_proxy === "1") score -= 10;
+            if (security.owner_address === "0x0000000000000000000000000000000000000000") score += 5;
+            
+            // Tax impact
+            const buyTax = parseFloat(security.buy_tax || "0") * 100;
+            const sellTax = parseFloat(security.sell_tax || "0") * 100;
+            if (buyTax > 10 || sellTax > 10) score -= 20;
+            if (buyTax > 50 || sellTax > 50) score -= 50;
+
+            return {
+              ...token,
+              risk: {
+                isHoneypot: security.is_honeypot === "1",
+                isUnverified: security.is_open_source === "0",
+                isPhishing: security.is_phishing_external === "1",
+                buyTax: buyTax.toFixed(1),
+                sellTax: sellTax.toFixed(1),
+                score: Math.max(0, Math.min(100, score))
+              }
+            };
+          }
+          return token;
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to fetch risk scores:", error);
+    } finally {
+      setIsLoadingRisk(false);
+    }
+  };
+
+  // Fetch real-time balances from Alchemy
+  const fetchRealBalances = useCallback(async (address: string, network: Network) => {
+    if (!ALCHEMY_KEY || !address) return;
+    
+    setIsSyncing(true);
+    try {
+      // Map common network IDs to Alchemy subdomains
+      const subdomains: Record<string, string> = {
+        base: 'base-mainnet',
+        eth: 'eth-mainnet',
+        polygon: 'polygon-mainnet',
+        arbitrum: 'arb-mainnet',
+        bsc: 'bnb-mainnet',
+        avalanche: 'avax-mainnet'
+      };
+
+      const subdomain = subdomains[network.id] || 'eth-mainnet';
+      const url = `https://${subdomain}.g.alchemy.com/v2/${ALCHEMY_KEY}`;
+
+      // 1. Get Token Balances
+      const balanceResponse = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'alchemy_getTokenBalances',
+          params: [address],
+          id: 1,
+        }),
+      });
+
+      const balanceData = await balanceResponse.json();
+      const balances = balanceData.result?.tokenBalances || [];
+
+      // Only care about tokens with positive balances
+      const nonZeroBalances = balances.filter((b: any) => b.tokenBalance !== '0x0000000000000000000000000000000000000000000000000000000000000000');
+
+      // 2. Fetch Metadata for these tokens (limited to batch of 10 for performance)
+      const tokenList: Token[] = [];
+      const batch = nonZeroBalances.slice(0, 10);
+
+      for (const b of batch) {
+        const metadataResponse = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            method: 'alchemy_getTokenMetadata',
+            params: [b.contractAddress],
+            id: 1,
+          }),
+        });
+        const meta = await metadataResponse.json();
+        const result = meta.result;
+
+        if (result && result.symbol) {
+          const rawBalance = b.tokenBalance;
+          const decimals = result.decimals || 18;
+          const formattedBalance = (parseInt(rawBalance, 16) / Math.pow(10, decimals)).toString();
+
+          tokenList.push({
+            id: b.contractAddress,
+            symbol: result.symbol,
+            name: result.name || result.symbol,
+            balance: formattedBalance,
+            valueUsd: 0, // Will be filled by fetchPrices
+            icon: result.logo || `https://api.dicebear.com/7.x/identicon/svg?seed=${b.contractAddress}`,
+          });
+        }
+      }
+
+      setTokens(tokenList.length > 0 ? tokenList : (MOCK_CRUMBS[network.id] || []));
+    } catch (error) {
+      console.error("Alchemy Sync Error:", error);
+      setTokens(MOCK_CRUMBS[network.id] || []);
+    } finally {
+      setIsSyncing(false);
+    }
+  }, [ALCHEMY_KEY]);
 
   useEffect(() => {
-    setTokens(MOCK_CRUMBS[selectedNetwork.id] || []);
+    if (account) {
+      fetchRealBalances(account, selectedNetwork);
+    } else {
+      setTokens(MOCK_CRUMBS[selectedNetwork.id] || []);
+    }
     setSelectedTokens(new Set());
-  }, [selectedNetwork]);
+  }, [selectedNetwork, account, fetchRealBalances]);
+
+  useEffect(() => {
+    if (tokens.length > 0) {
+      fetchPrices();
+      fetchRiskScores();
+      const interval = setInterval(fetchPrices, 30000); // Refresh every 30s
+      return () => clearInterval(interval);
+    }
+  }, [tokens.length, selectedNetwork.id]);
 
   const connectWallet = async () => {
     if (typeof window.ethereum !== 'undefined') {
@@ -213,69 +501,133 @@ export default function App() {
 
   const handleBake = async () => {
     if (selectedTokens.size === 0) return;
+    if (!window.ethereum) {
+      alert("Please install a wallet like MetaMsk to bake crumbs!");
+      return;
+    }
     
     setIsBaking(true);
     setBakeProgress(0);
+    setBakingStatus("Preheating Oven...");
 
-    // REAL ON-CHAIN LOGIC (Commented out for safety/simulation)
-    /*
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const contract = new ethers.Contract(CONTRACT_ADDRESSES[selectedNetwork.id], SWEEPER_ABI, signer);
+      const userAddress = await signer.getAddress();
+      const sweeperAddress = CONTRACT_ADDRESSES[selectedNetwork.id];
+
+      if (!sweeperAddress || sweeperAddress === "0x0000000000000000000000000000000000000000") {
+        throw new Error(`CrumbSweeper not deployed on ${selectedNetwork.name}. Please set a valid contract address.`);
+      }
+
+      const contract = new ethers.Contract(sweeperAddress, SWEEPER_ABI, signer);
       
       const selectedTokenData = tokens.filter(t => selectedTokens.has(t.id));
-      const tokenAddresses = selectedTokenData.map(t => t.id); // Assuming ID is the address
-      const amounts = selectedTokenData.map(t => ethers.parseUnits(t.balance, 18));
-      const minOuts = selectedTokenData.map(() => 0); // Simplified slippage
+      
+      // 1. Approval Step
+      setBakeProgress(20);
+      setBakingStatus("Gathering Ingredients (Approvals)...");
+      
+      for (let i = 0; i < selectedTokenData.length; i++) {
+        const token = selectedTokenData[i];
+        if (token.id === "0x0000000000000000000000000000000000000000") continue; // Skip native ETH if applicable
+
+        const tokenContract = new ethers.Contract(token.id, ERC20_ABI, signer);
+        
+        // Safety check for decimals() call to prevent "could not decode result data" error
+        let decimals = 18;
+        try {
+          // Check if contract has code at this address on current network
+          const code = await provider.getCode(token.id);
+          if (code === "0x") {
+            console.warn(`Token ${token.symbol} not found on this network. Using default decimals.`);
+          } else {
+            decimals = await tokenContract.decimals();
+          }
+        } catch (err) {
+          console.warn(`Could not fetch decimals for ${token.symbol}. Defaulting to 18.`, err);
+        }
+
+        const amount = ethers.parseUnits(token.balance, decimals);
+        
+        const allowance = await tokenContract.allowance(userAddress, sweeperAddress);
+        
+        if (allowance < amount) {
+          setBakingStatus(`Approving ${token.symbol}...`);
+          const approveTx = await tokenContract.approve(sweeperAddress, ethers.MaxUint256);
+          await approveTx.wait();
+        }
+        
+        const progress = 20 + ((i + 1) / selectedTokenData.length) * 40;
+        setBakeProgress(progress);
+      }
+
+      // 2. Baking Step
+      setBakeProgress(70);
+      setBakingStatus("In the Oven! Baking Crumbs...");
+      
+      const tokenAddresses = selectedTokenData.map(t => t.id);
+      const amounts = await Promise.all(selectedTokenData.map(async t => {
+        const tokenContract = new ethers.Contract(t.id, ERC20_ABI, provider);
+        let decimals = 18;
+        try {
+          const code = await provider.getCode(t.id);
+          if (code !== "0x") {
+            decimals = await tokenContract.decimals();
+          }
+        } catch (err) {
+          console.warn(`Error fetching decimals for ${t.id}`, err);
+        }
+        return ethers.parseUnits(t.balance, decimals);
+      }));
+      const minOuts = selectedTokenData.map(() => 0); // User should ideally set slippage
 
       const tx = await contract.bakeCrumbs(tokenAddresses, amounts, minOuts);
+      setBakingStatus("Final Glaze... Waiting for Confirmation");
       await tx.wait();
-    } catch (e) {
-      console.error("Baking failed!", e);
-      setIsBaking(false);
-      return;
-    }
-    */
 
-    const interval = setInterval(() => {
-      setBakeProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            setIsBaking(false);
-            setTokens(tokens.filter(t => !selectedTokens.has(t.id)));
-            setSelectedTokens(new Set());
-          }, 800);
-          return 100;
-        }
-        return prev + 4;
-      });
-    }, 40);
+      setBakeProgress(100);
+      setBakingStatus("Baguette Secured! Profit Freshly Baked.");
+      
+      setTimeout(() => {
+        setIsBaking(false);
+        setTokens(tokens.filter(t => !selectedTokens.has(t.id)));
+        setSelectedTokens(new Set());
+        setBakingStatus("");
+      }, 2000);
+
+    } catch (e: any) {
+      console.error("Baking failed!", e);
+      setBakingStatus(`Bake Failed: ${e.reason || e.message || "Unknown Error"}`);
+      setTimeout(() => {
+        setIsBaking(false);
+        setBakeProgress(0);
+      }, 3000);
+    }
   };
 
   const rawTotalValue = tokens
     .filter(t => selectedTokens.has(t.id))
-    .reduce((sum, t) => sum + (prices[t.symbol] || t.valueUsd), 0);
+    .reduce((sum, t) => sum + t.valueUsd, 0);
 
   const chefFee = (rawTotalValue * CHEF_FEE_PERCENT) / 100;
   const finalTotalValue = rawTotalValue - chefFee;
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row font-sans selection:bg-meme-pink selection:text-white">
+    <div className="min-h-screen flex flex-col lg:flex-row font-sans selection:bg-oven-orange selection:text-meme-black">
       {/* Sidebar */}
-      <aside className="w-full lg:w-96 bg-bakery-blue border-r-8 border-meme-black p-10 flex flex-col gap-12 z-10 relative overflow-hidden">
+      <aside className="w-full lg:w-96 bg-black/30 backdrop-blur-xl border-r-8 border-messy-border p-10 pb-32 lg:pb-10 flex flex-col gap-12 z-20 relative overflow-hidden shadow-2xl">
         <Sparkles count={15} />
         {/* Polka dot background for sidebar */}
         <div className="absolute inset-0 opacity-10 pointer-events-none" 
-             style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '16px 16px' }} />
+             style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '16px 16px' }} />
         
         <div className="relative z-10">
           <div className="flex flex-col items-center text-center gap-4">
             <motion.div 
               whileHover={{ rotate: 10, scale: 1.1 }}
               transition={{ type: "spring", stiffness: 300 }}
-              className="w-48 h-48 drop-shadow-[0_10px_10px_rgba(0,0,0,0.2)]"
+              className="w-48 h-48 drop-shadow-[0_10px_20px_rgba(0,0,0,0.1)]"
             >
               <img 
                 src="crustfundlogo (1).jpg" 
@@ -285,20 +637,45 @@ export default function App() {
               />
             </motion.div>
             <div>
-              <h1 className="font-display text-6xl tracking-tighter text-meme-black comic-text">CRUSTFUND</h1>
-              <p className="text-sm uppercase tracking-[0.3em] text-meme-black font-black mt-2">Degen Crumb Converter</p>
+              <h1 className="font-display text-6xl tracking-tighter text-white italic comic-text">CRUSTFUND</h1>
+              <p className="text-xs uppercase tracking-[0.3em] text-white/70 font-black mt-2">Degen Crumb Converter</p>
             </div>
           </div>
         </div>
 
         <div className="space-y-8">
-          <div className="text-sm uppercase tracking-widest text-meme-black font-black px-2 flex items-center gap-2">
+          <div className="text-xs uppercase tracking-widest text-oven-orange font-black px-2 flex items-center gap-2">
             <Rocket className="w-4 h-4" />
             Pick Your Chain
           </div>
+          
+          {/* Live Status Tag */}
+          <motion.div 
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            className="mx-2 p-4 bg-white border-4 border-messy-border rounded-lg rotate-[-1deg] shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 bg-meme-green text-meme-black text-[8px] font-black px-2 py-1 rotate-[15deg] translate-x-3 -translate-y-1 border-b-2 border-meme-black">
+              LIVE
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-bakery-blue rounded-full flex items-center justify-center border-2 border-meme-black shadow-sm">
+                <ChefHat className="w-6 h-6 text-crust" />
+              </div>
+              <div>
+                <div className="text-[10px] font-black text-crust uppercase tracking-tight">Status: Oven is Hot!</div>
+                <div className="text-sm font-display text-oven-orange comic-text leading-none mt-1">
+                  LIVE ON BASE 🔵
+                </div>
+              </div>
+            </div>
+            <div className="mt-3 pt-3 border-t-2 border-messy-border/20 text-[9px] font-bold text-crust/40 italic uppercase tracking-widest">
+              More chains heating up soon... 🔥
+            </div>
+          </motion.div>
+
           <div className="grid grid-cols-2 gap-x-4 gap-y-12 px-2 mt-8 relative">
             {NETWORKS.map((network, index) => {
-              // Create a pseudo-random rotation based on index
               const rotations = [-3, 2, -1, 4, -2, 3];
               const rotation = rotations[index % rotations.length];
               
@@ -314,8 +691,8 @@ export default function App() {
                 >
                   <div className="relative w-28 h-28 flex items-center justify-center">
                     <div className={cn(
-                      "sticker-outline transition-all duration-500",
-                      selectedNetwork.id === network.id ? "rotate-[-5deg]" : ""
+                      "sticker-outline transition-all duration-500 !bg-parchment/10 !border-messy-border",
+                      selectedNetwork.id === network.id ? "rotate-[-5deg] !border-oven-orange !shadow-[0_0_15px_rgba(255,140,0,0.4)]" : ""
                     )} />
                     
                     {/* Sticker Image or Emoji Fallback */}
@@ -367,16 +744,30 @@ export default function App() {
             <div className="font-display text-2xl">5% FEE PER BAKE</div>
             <div className="text-[10px] opacity-40 mt-2 italic">Supporting the degen kitchen</div>
           </div>
+
+          <div className="p-4 bg-white/20 border-2 border-meme-black/10 rounded-2xl flex items-center gap-3">
+            <ShieldCheck className="w-6 h-6 text-meme-pink" />
+            <div className="text-[10px] font-black uppercase tracking-widest leading-tight">
+              Contract Scanning <br/> 
+              <span className="opacity-40 font-bold">By GoPlus Security</span>
+            </div>
+          </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8 lg:p-20 max-w-7xl mx-auto w-full relative">
+      <main className="flex-1 p-8 lg:p-20 pb-32 max-w-7xl mx-auto w-full relative">
         <Sparkles count={30} />
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-20 gap-10 relative z-10">
           <div>
-            <h2 className="text-6xl font-display text-meme-black mb-4 comic-text">CRUMB CONVERTER</h2>
-            <p className="text-meme-black/60 font-black text-xl">Sweep your degen crumbs and bake them into fresh {selectedNetwork.nativeCurrency}!</p>
+            <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+              <h2 className="text-6xl comic-text">CRUMB CONVERTER</h2>
+              <Badge className="w-fit bg-white border-2 border-oven-orange text-oven-orange font-black text-[10px] py-1 px-3 rounded-md flex items-center gap-1 shadow-lg">
+                <ShieldCheck className="w-3 h-3 text-oven-orange fill-oven-orange/20" /> 
+                SECURED BY GOPLUS
+              </Badge>
+            </div>
+            <p className="text-crust/60 font-bold text-xl uppercase tracking-tighter">Sweep your degen crumbs and bake them into fresh {selectedNetwork.nativeCurrency}!</p>
           </div>
           
           {!account ? (
@@ -401,8 +792,8 @@ export default function App() {
         </div>
 
         {!account ? (
-              <div className="bg-white border-8 border-meme-black rounded-3xl p-12 text-center shadow-[15px_15px_0px_0px_rgba(0,0,0,1)] max-w-2xl mx-auto overflow-hidden relative">
-                <div className="absolute inset-0 opacity-10 pointer-events-none">
+              <div className="sweeper-card text-center max-w-2xl mx-auto overflow-hidden relative">
+                <div className="absolute inset-0 opacity-5 pointer-events-none">
                   <img 
                     src="JQyhOcBEIm2WQNbPVJGI--0--IWW-4.jpg" 
                     alt="Background" 
@@ -413,16 +804,16 @@ export default function App() {
                 <div className="relative z-10">
                   <div className="w-48 h-48 mx-auto mb-8">
                     <img 
-                      src="Mascot Crusty the Melted Patty (Default Happy Mode).jpg" 
-                      alt="Robot Collector" 
-                      className="w-full h-full object-contain"
+                      src="crustfundsweeper.jpg" 
+                      alt="CrustFund Sweeper Mascot" 
+                      className="w-full h-full object-contain rounded-lg border-2 border-messy-border"
                       referrerPolicy="no-referrer"
                     />
                   </div>
-                  <h3 className="text-5xl font-display text-meme-black mb-6 comic-text uppercase italic tracking-tighter">
+                  <h3 className="text-5xl font-display text-crust mb-6 uppercase italic tracking-tighter comic-text">
                     Kitchen is Closed!
                   </h3>
-                  <p className="text-xl font-bold text-meme-black/70 mb-10 max-w-md mx-auto">
+                  <p className="text-lg font-bold text-crust/70 mb-10 max-w-md mx-auto leading-relaxed">
                     Connect your wallet to start sweeping those worthless crumbs into massive gains!
                   </p>
                   <Button 
@@ -437,35 +828,35 @@ export default function App() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             {/* Left Column: Baker & Bake Action */}
             <div className="lg:col-span-5 space-y-12">
-              <Card className="meme-card p-12 text-center bg-bakery-blue/10">
+              <Card className="sweeper-card text-center">
                 <MemeMascot progress={bakeProgress} isBaking={isBaking} />
                 
                 <div className="space-y-10">
-                  <div className="bg-white border-4 border-meme-black p-8 rounded-[2rem] shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-                    <div className="text-sm font-black uppercase tracking-widest text-meme-black/40 mb-4">You'll Receive (After Fee)</div>
-                    <div className="text-7xl font-display text-meme-black comic-text">
+                  <div className="bg-meme-black border-4 border-messy-border p-8 rounded-lg shadow-[inset_0_0_20px_rgba(255,140,0,0.1)]">
+                    <div className="text-xs font-black uppercase tracking-widest text-parchment/30 mb-4">You'll Receive (After Fee)</div>
+                    <div className="text-7xl font-display text-oven-orange comic-text">
                       {finalTotalValue > 0 ? finalTotalValue.toFixed(4) : "0.0000"}
-                      <span className="text-2xl ml-3 text-meme-pink">USD</span>
+                      <span className="text-xl ml-3 text-parchment opacity-40">USD</span>
                     </div>
-                    <div className="mt-4 text-xs font-black text-meme-pink uppercase tracking-widest">
+                    <div className="mt-4 text-xs font-black text-oven-orange uppercase tracking-widest opacity-60">
                       Chef's Fee: -${chefFee.toFixed(4)} (5%)
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    <div className="flex justify-between text-sm font-black uppercase tracking-[0.2em] text-meme-black">
-                      <span>BAKING STATUS</span>
-                      <span>{bakeProgress}%</span>
+                    <div className="flex justify-between text-xs font-black uppercase tracking-[0.2em] text-crust/60">
+                      <span>{isBaking ? bakingStatus : "BAKING STATUS"}</span>
+                      <span className="text-oven-orange">{bakeProgress}%</span>
                     </div>
-                    <Progress value={bakeProgress} className="h-8 bg-white border-4 border-meme-black rounded-2xl overflow-hidden" />
+                    <Progress value={bakeProgress} className="h-4 bg-bakery-blue/30 border-2 border-messy-border rounded-full overflow-hidden shadow-inner" />
                   </div>
 
                   <Button 
                     disabled={selectedTokens.size === 0 || isBaking}
                     onClick={handleBake}
                     className={cn(
-                      "w-full h-24 text-4xl meme-button shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]",
-                      isBaking ? "bg-meme-black text-white/40" : "meme-button-primary"
+                      "w-full h-24 text-4xl meme-button shadow-[0_10px_20px_rgba(0,0,0,0.5)] border-4 rounded-lg",
+                      isBaking ? "bg-meme-black text-white/40 border-messy-border" : "bg-oven-orange text-white border-[#ffc482] font-display tracking-widest hover:brightness-110 active:translate-y-1"
                     )}
                   >
                     {isBaking ? (
@@ -476,19 +867,19 @@ export default function App() {
                     {isBaking ? "BAKING..." : `BAKE ${selectedTokens.size} CRUMBS`}
                   </Button>
                   
-                  <p className="text-xs text-meme-black/40 font-black uppercase tracking-widest flex items-center justify-center gap-3">
-                    <TrendingUp className="w-5 h-5 text-meme-green" />
+                  <p className="text-[10px] text-parchment/30 font-black uppercase tracking-widest flex items-center justify-center gap-3">
+                    <TrendingUp className="w-4 h-4 text-meme-green" />
                     Moon mission guaranteed (not financial advice)
                   </p>
                 </div>
               </Card>
 
-              <div className="bg-meme-pink/10 border-4 border-meme-black rounded-[2rem] p-8 flex gap-6 items-start shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-                <div className="p-4 bg-white border-4 border-meme-black rounded-2xl">
-                  <Skull className="w-8 h-8 text-meme-pink" />
+              <div className="bg-meme-black/60 border-4 border-messy-border rounded-lg p-8 flex gap-6 items-start shadow-[8px_8px_0px_0px_rgba(0,0,0,0.3)]">
+                <div className="p-4 bg-meme-black border-4 border-messy-border rounded-lg">
+                  <Skull className="w-8 h-8 text-oven-orange" />
                 </div>
-                <div className="text-lg text-meme-black font-black leading-relaxed">
-                  <strong className="text-meme-pink block mb-2 font-display text-3xl comic-text">WAGMI!</strong>
+                <div className="text-lg text-parchment font-bold leading-relaxed">
+                  <strong className="text-oven-orange block mb-2 font-display text-3xl comic-text">WAGMI!</strong>
                   Crumbs are those tiny, useless balances. We bake them into one big loaf so you can actually trade them!
                 </div>
               </div>
@@ -496,17 +887,34 @@ export default function App() {
 
             {/* Right Column: Crumb List */}
             <div className="lg:col-span-7">
-              <Card className="meme-card h-full flex flex-col">
-                <CardHeader className="flex flex-row items-center justify-between border-b-4 border-meme-black p-10 bg-meme-blue/10">
+              <Card className="sweeper-card h-full flex flex-col !p-0 overflow-hidden">
+                <CardHeader className="flex flex-row items-center justify-between border-b-4 border-messy-border p-10 bg-bakery-blue/5">
                   <div>
-                    <CardTitle className="text-4xl font-display text-meme-black comic-text">YOUR PANTRY</CardTitle>
-                    <CardDescription className="text-meme-black/60 font-black text-xl">Found {tokens.length} crumbs in the jar</CardDescription>
+                    <CardTitle className="text-4xl font-display text-crust comic-text">YOUR PANTRY</CardTitle>
+                    <CardDescription className="text-crust/60 font-bold text-xl uppercase tracking-tighter">Found {tokens.length} crumbs in the jar</CardDescription>
                   </div>
-                  <div className="flex gap-4">
+                  <div className="flex flex-wrap justify-end gap-3">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className={cn(
+                        "text-[10px] font-black border-2 border-messy-border rounded-lg px-4 h-10 shadow-md transition-all",
+                        isLoadingPrices || isLoadingRisk || isSyncing ? "bg-oven-orange text-white" : "bg-white text-crust hover:bg-bakery-blue/10"
+                      )}
+                      onClick={() => {
+                        if (account) fetchRealBalances(account, selectedNetwork);
+                        fetchPrices();
+                        fetchRiskScores();
+                      }}
+                      disabled={isLoadingPrices || isLoadingRisk || isSyncing}
+                    >
+                      <RefreshCw className={cn("w-3 h-3 mr-2", (isLoadingPrices || isLoadingRisk || isSyncing) && "animate-spin")} />
+                      {isLoadingPrices || isLoadingRisk || isSyncing ? "SYNCING..." : "REFRESH PANTRY"}
+                    </Button>
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="text-sm font-black text-meme-blue hover:bg-meme-blue/10 rounded-xl px-6"
+                      className="text-[10px] font-black text-oven-orange hover:bg-oven-orange/10 border-2 border-oven-orange/20 rounded-lg px-4 h-10"
                       onClick={() => setSelectedTokens(new Set(tokens.map(t => t.id)))}
                     >
                       SELECT ALL
@@ -514,17 +922,26 @@ export default function App() {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="text-sm font-black text-meme-black/40 hover:bg-meme-black/5 rounded-xl px-6"
+                      className="text-[10px] font-black text-crust/40 hover:bg-black/5 border-2 border-black/10 rounded-lg px-4 h-10"
                       onClick={() => setSelectedTokens(new Set())}
                     >
                       CLEAR
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="p-0 flex-1">
+                <CardContent className="p-0 flex-1 bg-white/50">
                   <ScrollArea className="h-[700px] p-10">
                     <AnimatePresence mode="popLayout">
-                      {tokens.length > 0 ? (
+                      {isSyncing ? (
+                        <div className="flex flex-col items-center justify-center h-[500px] text-center space-y-8 animate-pulse">
+                          <div className="w-32 h-32 relative">
+                            <RefreshCw className="w-full h-full text-oven-orange animate-spin opacity-20" />
+                            <ChefHat className="absolute inset-0 w-20 h-20 m-auto text-crust" />
+                          </div>
+                          <p className="font-display text-4xl text-crust/40 comic-text uppercase italic tracking-tighter">Counting Crumbs...</p>
+                          <p className="text-crust/20 font-black uppercase tracking-widest text-[10px]">Checking the jars for your gems</p>
+                        </div>
+                      ) : tokens.length > 0 ? (
                         tokens.map(token => (
                           <TokenCard 
                             key={token.id} 
@@ -543,27 +960,54 @@ export default function App() {
                             <img 
                               src="Melted Sad Version (Down Market).jpg" 
                               alt="Crying Bread" 
-                              className="w-full h-full object-contain grayscale opacity-50"
+                              className="w-full h-full object-contain grayscale opacity-30"
                               referrerPolicy="no-referrer"
                             />
                           </motion.div>
-                          <p className="font-display text-4xl comic-text text-meme-black/40">PANTRY IS EMPTY!</p>
-                          <p className="text-meme-black/30 font-bold mt-2">No crumbs detected. Go buy some shitcoins!</p>
+                          <p className="font-display text-4xl text-crust/20 comic-text">PANTRY IS EMPTY!</p>
+                          <p className="text-crust/10 font-bold mt-2 uppercase tracking-widest text-xs">No crumbs detected. Go buy some shitcoins!</p>
                         </div>
                       )}
                     </AnimatePresence>
                   </ScrollArea>
                 </CardContent>
-                <div className="p-10 border-t-4 border-meme-black bg-bakery-blue/20">
-                  <div className="flex justify-between items-center">
-                    <div className="text-xl font-black text-meme-black/60">
-                      SELECTED: <span className="text-meme-pink font-display text-3xl comic-text">{selectedTokens.size} CRUMBS</span>
+                {selectedTokens.size > 0 && (
+                  <div className="p-10 border-t-4 border-messy-border bg-bakery-blue/10 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex justify-between items-center text-crust/40 font-black uppercase tracking-widest text-[10px]">
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="w-3 h-3 text-meme-green" />
+                        Estimated Value
+                      </div>
+                      <span className="font-mono text-lg text-crust">${rawTotalValue.toFixed(4)}</span>
                     </div>
-                    <Badge className="bg-meme-black text-bakery-blue font-mono font-black text-xl px-8 py-3 rounded-2xl border-4 border-meme-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                      ~ {finalTotalValue.toFixed(4)} USD
-                    </Badge>
+                    <div className="flex justify-between items-center text-oven-orange/60 font-black uppercase tracking-widest text-[10px]">
+                      <div className="flex items-center gap-2">
+                        <Skull className="w-3 h-3" />
+                        Chef's Fee (5%)
+                      </div>
+                      <span className="font-mono text-lg text-oven-orange">-${chefFee.toFixed(4)}</span>
+                    </div>
+
+                    {tokens.some(t => selectedTokens.has(t.id) && t.risk && (t.risk.score < 60 || t.risk.isHoneypot)) && (
+                      <div className="p-4 bg-red-600/10 border-2 border-red-600 rounded-lg flex items-center gap-4 text-red-500 animate-pulse">
+                        <ShieldAlert className="w-8 h-8 flex-shrink-0" />
+                        <div className="text-[10px] font-black uppercase tracking-widest leading-none">
+                          Warning: One or more selected crumbs have CRITICAL security flags! 
+                          <span className="block mt-1 opacity-60 font-bold">High risk of Honeypot or Scam detection.</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="pt-6 border-t-4 border-messy-border flex justify-between items-center">
+                      <div className="text-xs font-black text-crust/40 uppercase tracking-widest leading-loose">
+                        TOTAL TO BAKE: <span className="text-oven-orange font-display text-3xl block comic-text">{selectedTokens.size} CRUMBS</span>
+                      </div>
+                      <Badge className="bg-white text-oven-orange font-mono font-black text-xl px-8 py-3 rounded-lg border-2 border-oven-orange shadow-lg">
+                        ~ {finalTotalValue.toFixed(4)} USD
+                      </Badge>
+                    </div>
                   </div>
-                </div>
+                )}
               </Card>
             </div>
           </div>
@@ -571,21 +1015,21 @@ export default function App() {
       </main>
 
       {/* Footer / Status Bar */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t-8 border-meme-black px-10 py-4 flex justify-between items-center text-sm uppercase tracking-[0.3em] text-meme-black font-black z-50">
+      <footer className="fixed bottom-0 left-0 right-0 bg-black/40 backdrop-blur-xl border-t-8 border-messy-border px-10 py-4 flex justify-between items-center text-[10px] uppercase tracking-[0.3em] text-white font-black z-50">
         <div className="flex gap-12">
           <div className="flex items-center gap-4">
-            <div className="w-4 h-4 bg-meme-green rounded-full border-2 border-meme-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" />
-            KITCHEN STATUS: BAKING GAINS
+            <div className="w-4 h-4 bg-meme-green rounded-sm border-2 border-meme-black" />
+            KITCHEN STATUS: <span className="text-meme-green animate-pulse">BAKING GAINS</span>
           </div>
           <div className="hidden sm:flex items-center gap-3">
-            <Flame className="w-5 h-5 text-meme-orange fill-meme-orange" />
-            OVEN TEMP: 69 GWEI
+            <Flame className="w-5 h-5 text-oven-orange fill-oven-orange" />
+            OVEN TEMP: <span className="text-oven-orange tracking-normal">69 GWEI</span>
           </div>
         </div>
         <div className="flex gap-10">
-          <span className="hover:text-meme-pink cursor-pointer transition-colors">RECIPE BOOK</span>
-          <span className="hover:text-meme-pink cursor-pointer transition-colors">CONTACT CHEF</span>
-          <span className="text-meme-black/20">v6.9.0-DEGEN</span>
+          <span className="hover:text-oven-orange cursor-pointer transition-colors">RECIPE BOOK</span>
+          <span className="hover:text-oven-orange cursor-pointer transition-colors">CONTACT CHEF</span>
+          <span className="text-crust/10">v6.9.0-DEGEN</span>
         </div>
       </footer>
     </div>
