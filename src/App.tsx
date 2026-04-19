@@ -50,7 +50,7 @@ const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolea
         transition={{ duration: 0.3, repeat: Infinity }}
       >
         <img 
-          src={isBaking ? "Lever Pulled (Profit Frenzy Mode).jpg" : "crustfundsweeper.jpg"} 
+          src={isBaking ? "/lever-pulled.jpg" : "/crustfundsweeper.jpg"} 
           alt="Mascot" 
           className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
           referrerPolicy="no-referrer"
@@ -630,7 +630,7 @@ export default function App() {
               className="w-48 h-48 drop-shadow-[0_10px_20px_rgba(0,0,0,0.1)]"
             >
               <img 
-                src="crustfundlogo (1).jpg" 
+                src="/crustfundlogo.jpg" 
                 alt="CrustFund Logo" 
                 className="w-full h-full object-contain"
                 referrerPolicy="no-referrer"
@@ -795,7 +795,7 @@ export default function App() {
               <div className="sweeper-card text-center max-w-2xl mx-auto overflow-hidden relative">
                 <div className="absolute inset-0 opacity-5 pointer-events-none">
                   <img 
-                    src="JQyhOcBEIm2WQNbPVJGI--0--IWW-4.jpg" 
+                    src="/mascot-happy.jpg" 
                     alt="Background" 
                     className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
@@ -804,7 +804,7 @@ export default function App() {
                 <div className="relative z-10">
                   <div className="w-48 h-48 mx-auto mb-8">
                     <img 
-                      src="crustfundsweeper.jpg" 
+                      src="/crustfundsweeper.jpg" 
                       alt="CrustFund Sweeper Mascot" 
                       className="w-full h-full object-contain rounded-lg border-2 border-messy-border"
                       referrerPolicy="no-referrer"
@@ -958,7 +958,7 @@ export default function App() {
                             className="w-48 h-48 mb-8"
                           >
                             <img 
-                              src="Melted Sad Version (Down Market).jpg" 
+                              src="/melted-sad.jpg" 
                               alt="Crying Bread" 
                               className="w-full h-full object-contain grayscale opacity-30"
                               referrerPolicy="no-referrer"
