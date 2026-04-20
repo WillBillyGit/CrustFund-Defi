@@ -54,6 +54,7 @@ const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolea
           src={isBaking ? "/crustfundsweeper.jpg" : "/crustfundsweeper.jpg"} 
           alt="Mascot" 
           className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
+          referrerPolicy="no-referrer"
         />
       </motion.div>
 
@@ -633,6 +634,7 @@ export default function App() {
                 src="/logo.jpg" 
                 alt="CrustFund Logo" 
                 className="w-full h-full object-contain"
+                referrerPolicy="no-referrer"
               />
             </motion.div>
             <div>
@@ -797,6 +799,7 @@ export default function App() {
                     src="/kitchen-is-closed.jpg" 
                     alt="Background" 
                     className="w-full h-full object-cover opacity-20"
+                    referrerPolicy="no-referrer"
                   />
                 </div>
                 <div className="relative z-10">
@@ -805,6 +808,7 @@ export default function App() {
                       src="/kitchen-is-closed.jpg" 
                       alt="CrustFund Sweeper Mascot" 
                       className="w-full h-full object-contain rounded-lg border-2 border-messy-border"
+                      referrerPolicy="no-referrer"
                     />
                   </div>
                   <h3 className="text-5xl font-display text-crust mb-6 uppercase italic tracking-tighter comic-text">
@@ -958,6 +962,7 @@ export default function App() {
                               src="/crustfundsweeper.jpg" 
                               alt="Crying Bread" 
                               className="w-full h-full object-contain grayscale opacity-30"
+                              referrerPolicy="no-referrer"
                             />
                           </motion.div>
                           <p className="font-display text-4xl text-crust/20 comic-text">PANTRY IS EMPTY!</p>
