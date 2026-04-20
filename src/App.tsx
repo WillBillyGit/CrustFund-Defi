@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Settings, 
@@ -50,10 +51,9 @@ const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolea
         transition={{ duration: 0.3, repeat: Infinity }}
       >
         <img 
-          src={isBaking ? "/lever-pulled.jpg" : "/crustfundsweeper.jpg"} 
+          src={isBaking ? "/crustfundsweeper.jpg" : "/crustfundsweeper.jpg"} 
           alt="Mascot" 
           className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
-          referrerPolicy="no-referrer"
         />
       </motion.div>
 
@@ -630,10 +630,9 @@ export default function App() {
               className="w-48 h-48 drop-shadow-[0_10px_20px_rgba(0,0,0,0.1)]"
             >
               <img 
-                src="/crustfundlogo.jpg" 
+                src="/logo.jpg" 
                 alt="CrustFund Logo" 
                 className="w-full h-full object-contain"
-                referrerPolicy="no-referrer"
               />
             </motion.div>
             <div>
@@ -795,19 +794,17 @@ export default function App() {
               <div className="sweeper-card text-center max-w-2xl mx-auto overflow-hidden relative">
                 <div className="absolute inset-0 opacity-5 pointer-events-none">
                   <img 
-                    src="/mascot-happy.jpg" 
+                    src="/kitchen-is-closed.jpg" 
                     alt="Background" 
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover opacity-20"
                   />
                 </div>
                 <div className="relative z-10">
                   <div className="w-48 h-48 mx-auto mb-8">
                     <img 
-                      src="/crustfundsweeper.jpg" 
+                      src="/kitchen-is-closed.jpg" 
                       alt="CrustFund Sweeper Mascot" 
                       className="w-full h-full object-contain rounded-lg border-2 border-messy-border"
-                      referrerPolicy="no-referrer"
                     />
                   </div>
                   <h3 className="text-5xl font-display text-crust mb-6 uppercase italic tracking-tighter comic-text">
@@ -958,10 +955,9 @@ export default function App() {
                             className="w-48 h-48 mb-8"
                           >
                             <img 
-                              src="/melted-sad.jpg" 
+                              src="/crustfundsweeper.jpg" 
                               alt="Crying Bread" 
                               className="w-full h-full object-contain grayscale opacity-30"
-                              referrerPolicy="no-referrer"
                             />
                           </motion.div>
                           <p className="font-display text-4xl text-crust/20 comic-text">PANTRY IS EMPTY!</p>
@@ -1032,6 +1028,7 @@ export default function App() {
           <span className="text-crust/10">v6.9.0-DEGEN</span>
         </div>
       </footer>
+      <Analytics />
     </div>
   );
 }

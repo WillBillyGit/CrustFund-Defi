@@ -23,11 +23,8 @@
 @layer base {
   body {
     @apply text-crust font-sans antialiased min-h-screen;
-    background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)), url('/background.jpg');
+    background: #3E728A url('/background.jpg') no-repeat center center fixed;
     background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
   }
 
   h2 {
