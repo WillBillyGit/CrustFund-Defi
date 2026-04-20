@@ -197,7 +197,7 @@ const CONTRACT_ADDRESSES: Record<string, string> = {
   eth: "0x0000000000000000000000000000000000000000",
   polygon: "0x0000000000000000000000000000000000000000",
   avalanche: "0x0000000000000000000000000000000000000000",
-  bsc: "0x0000000000000000000000000000000000000000",
+  bsc: "0x6f2a94532a391aa66a79098cab033dd303bd2790",
   arbitrum: "0x0000000000000000000000000000000000000000",
 };
 
@@ -666,7 +666,7 @@ export default function App() {
               <div>
                 <div className="text-[10px] font-black text-crust uppercase tracking-tight">Status: Oven is Hot!</div>
                 <div className="text-sm font-display text-oven-orange comic-text leading-none mt-1">
-                  LIVE ON BASE 🔵
+                  LIVE ON BASE 🔵 & BNB 🟡
                 </div>
               </div>
             </div>

@@ -14,10 +14,11 @@ Degens naturally accumulate hundreds of "crumbs"—tiny balances of tokens from 
 - **One-Click Cleaning**: Select multiple tokens and "Bake" them into native tokens in one go.
 - **High-Energy UI**: A messy, vibrant, brewery/bakery-inspired interface that captures the high-stakes energy of on-chain trading.
 
-## 🚀 Live on Base
-The oven is currently hot on **Base Mainnet**!
-- **Contract Address**: `0x0CDcD1499558C603B0244C66E7f9561C94dC3f31`
-- *More chains (Ethereum, Polygon, Arbitrum, BSC, Avalanche) heating up soon...*
+## 🚀 Live on Base & BNB Chain
+The oven is currently hot on **Base Mainnet** and **BNB Smart Chain**!
+- **Base**: `0x0CDcD1499558C603B0244C66E7f9561C94dC3f31`
+- **BNB Chain**: `0x6f2a94532a391aa66a79098cab033dd303bd2790`
+- *More chains (Ethereum, Polygon, Arbitrum, Avalanche) heating up soon...*
 
 ## 🛠️ Tech Stack
 - **Frontend**: React 18 + Vite
