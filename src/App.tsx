@@ -24,13 +24,15 @@ import {
   Smile,
   ShieldAlert,
   ShieldCheck,
-  Ban
+  Ban,
+  Image as ImageIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NETWORKS, MOCK_CRUMBS, Token, Network } from './types';
 import { cn } from '@/lib/utils';
 import { ethers } from 'ethers';
@@ -51,7 +53,7 @@ const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolea
         transition={{ duration: 0.3, repeat: Infinity }}
       >
         <img 
-          src={isBaking ? "/crustfundsweeper.jpg" : "/crustfundsweeper.jpg"} 
+          src={isBaking ? "/mascot-baking.jpg" : "/mascot-happy.jpg"} 
           alt="Mascot" 
           className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
           referrerPolicy="no-referrer"
@@ -75,6 +77,108 @@ const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolea
         ))}
       </AnimatePresence>
     </div>
+  );
+};
+
+const RewardModal = ({ isOpen, onClose, amount }: { isOpen: boolean, onClose: () => void, amount: string }) => {
+  const addCrumbToWallet = async () => {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_watchAsset',
+          params: {
+            type: 'ERC20',
+            options: {
+              address: CRUMB_TOKEN_BASE,
+              symbol: 'CRUMB',
+              decimals: 18,
+              image: 'https://crust.fund/logo.png', 
+            },
+          },
+        });
+      } catch (error) {
+        console.error("Error adding token to wallet", error);
+      }
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <motion.div 
+            initial={{ scale: 0.5, opacity: 0, rotate: -10 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+            exit={{ scale: 0.5, opacity: 0, rotate: 10 }}
+            className="sweeper-card max-w-lg w-full relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 p-4">
+              <Button variant="ghost" size="icon" onClick={onClose} className="text-crust hover:bg-crust/10">
+                <AlertCircle className="w-6 h-6 rotate-45" />
+              </Button>
+            </div>
+
+            <div className="p-12 text-center space-y-8">
+              <div className="relative">
+                <motion.div 
+                  className="w-32 h-32 mx-auto bg-bakery-blue rounded-full border-8 border-messy-border flex items-center justify-center shadow-lg"
+                  animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
+                  transition={{ duration: 0.5, repeat: Infinity }}
+                >
+                  <Cookie className="w-16 h-16 text-crust" />
+                </motion.div>
+                <div className="absolute -top-4 -right-4">
+                  <Badge className="bg-oven-orange text-white border-2 border-meme-black p-2 rounded-lg shadow-huge animate-bounce">
+                    BONUS REWARD!
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-4xl font-display text-crust uppercase italic tracking-tighter comic-text">
+                  KITCHEN SPECIAL!
+                </h3>
+                <p className="text-lg font-bold text-crust/70 leading-relaxed">
+                  The Chef loved your bake! As a bonus, you've earned a batch of <span className="text-crust">$CRUMB</span> tokens.
+                </p>
+              </div>
+
+              <div className="p-8 bg-bakery-blue/10 border-4 border-dashed border-messy-border rounded-xl relative overflow-hidden group">
+                <div className="absolute inset-0 bg-white/5 group-hover:translate-x-full transition-transform duration-1000 -translate-x-full" />
+                <div className="text-5xl font-display text-crust comic-text">
+                  +{amount} $CRUMB
+                </div>
+                <div className="mt-2 text-[10px] font-black uppercase tracking-[0.2em] text-crust/40">
+                  Transaction Verified • Base Chain
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                <Button 
+                  onClick={addCrumbToWallet}
+                  className="meme-button meme-button-primary w-full py-8 text-xl"
+                >
+                  ADD $CRUMB TO WALLET
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={onClose}
+                  className="border-4 border-messy-border text-crust hover:bg-parchment py-8 font-black uppercase tracking-widest text-xs"
+                >
+                  KEEP BAKING
+                </Button>
+              </div>
+
+              <p className="text-[10px] font-bold text-crust/30 uppercase tracking-widest">
+                Bonus rewards are sent automatically to your wallet. Use them to unlock special deals in the CrustFund bakery!
+              </p>
+            </div>
+
+            <Sparkles count={30} />
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -201,6 +305,8 @@ const CONTRACT_ADDRESSES: Record<string, string> = {
   arbitrum: "0x0000000000000000000000000000000000000000",
 };
 
+const CRUMB_TOKEN_BASE = "0xa6de7624947d2b56d5d3f0351452d369428cec73";
+
 const SWEEPER_ABI = [
   "function bakeCrumbs(address[] tokens, uint256[] amountsIn, uint256[] minAmountsOut) external",
   "event CrumbsBaked(address indexed user, uint256 totalReceived, uint256 feeTaken)"
@@ -245,9 +351,26 @@ export default function App() {
   const [isLoadingRisk, setIsLoadingRisk] = useState(false);
   const [bakingStatus, setBakingStatus] = useState<string>("");
   const [isSyncing, setIsSyncing] = useState(false);
+  const [showBonusClaim, setShowBonusClaim] = useState(false);
+  const [earnedBonus, setEarnedBonus] = useState("0");
+  const [crumbBalance, setCrumbBalance] = useState<string>("0");
   const CHEF_FEE_PERCENT = 5; // 5% fee for profitability
 
   const ALCHEMY_KEY = (import.meta as any).env.VITE_ALCHEMY_API_KEY;
+
+  // Fetch real $CRUMB balance from Base
+  const fetchCrumbBalance = useCallback(async (userAddress: string) => {
+    if (selectedNetwork.id !== 'base' || !window.ethereum) return;
+    
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const crumbContract = new ethers.Contract(CRUMB_TOKEN_BASE, ["function balanceOf(address) view returns (uint256)"], provider);
+      const balance = await crumbContract.balanceOf(userAddress);
+      setCrumbBalance(ethers.formatUnits(balance, 18));
+    } catch (err) {
+      console.error("Error fetching $CRUMB balance:", err);
+    }
+  }, [selectedNetwork.id]);
 
   // Fetch real-time prices from DexScreener (more resilient implementation)
   const fetchPrices = async () => {
@@ -461,6 +584,7 @@ export default function App() {
   useEffect(() => {
     if (account) {
       fetchRealBalances(account, selectedNetwork);
+      fetchCrumbBalance(account);
     } else {
       setTokens(MOCK_CRUMBS[selectedNetwork.id] || []);
     }
@@ -590,11 +714,19 @@ export default function App() {
       setBakeProgress(100);
       setBakingStatus("Baguette Secured! Profit Freshly Baked.");
       
+      // Calculate bonus reward based on value (1 CRUMB per 0.001 ETH worth of crumbs)
+      const totalUsdValue = selectedTokenData.reduce((acc, t) => acc + (t.valueUsd || 0), 0);
+      const bonusAmount = Math.max(10, Math.floor(totalUsdValue * 100)); // Minimum 10 $CRUMB
+      setEarnedBonus(bonusAmount.toString());
+      
       setTimeout(() => {
         setIsBaking(false);
         setTokens(tokens.filter(t => !selectedTokens.has(t.id)));
         setSelectedTokens(new Set());
         setBakingStatus("");
+        if (selectedNetwork.id === 'base') {
+          setShowBonusClaim(true);
+        }
       }, 2000);
 
     } catch (e: any) {
@@ -740,10 +872,17 @@ export default function App() {
             <History className="w-6 h-6" />
             Moon History
           </Button>
-          <div className="p-6 bg-meme-black text-white rounded-[1.5rem] border-4 border-meme-black">
-            <div className="text-xs uppercase font-black mb-2 opacity-60">Chef's Tip</div>
-            <div className="font-display text-2xl">5% FEE PER BAKE</div>
-            <div className="text-[10px] opacity-40 mt-2 italic">Supporting the degen kitchen</div>
+          <div className="space-y-4">
+            <div className="p-6 bg-bakery-blue text-white rounded-[1.5rem] border-4 border-meme-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <div className="text-[10px] uppercase font-black mb-2 opacity-60">Kitchen Counter</div>
+              <div className="font-display text-4xl comic-text">6,420</div>
+              <div className="text-[10px] opacity-60 mt-1 uppercase font-black">Crumbs Converted</div>
+            </div>
+            <div className="p-6 bg-meme-black text-white rounded-[1.5rem] border-4 border-meme-black">
+              <div className="text-xs uppercase font-black mb-2 opacity-60">Chef's Tip</div>
+              <div className="font-display text-2xl">5% FEE PER BAKE</div>
+              <div className="text-[10px] opacity-40 mt-2 italic">Supporting the degen kitchen</div>
+            </div>
           </div>
 
           <div className="p-4 bg-white/20 border-2 border-meme-black/10 rounded-2xl flex items-center gap-3">
@@ -771,25 +910,45 @@ export default function App() {
             <p className="text-crust/60 font-bold text-xl uppercase tracking-tighter">Sweep your degen crumbs and bake them into fresh {selectedNetwork.nativeCurrency}!</p>
           </div>
           
-          {!account ? (
-            <Button 
-              onClick={connectWallet}
-              className="meme-button meme-button-primary h-auto text-3xl px-12 py-8"
-            >
-              <Wallet className="mr-4 w-8 h-8" />
-              CONNECT WALLET
-            </Button>
-          ) : (
-            <div className="flex items-center gap-6 bg-white p-4 pr-8 rounded-full border-4 border-meme-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-              <div className="w-14 h-14 rounded-full bg-meme-green flex items-center justify-center border-4 border-meme-black">
-                <div className="w-4 h-4 bg-white rounded-full animate-ping" />
+          <div className="flex flex-col md:flex-row gap-6 items-end md:items-center">
+            {account && selectedNetwork.id === 'base' && (
+              <motion.div 
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-bakery-blue/10 border-2 border-messy-border px-6 py-4 rounded-2xl flex items-center gap-4 shadow-sm"
+              >
+                <div className="w-10 h-10 bg-white rounded-full border-2 border-messy-border flex items-center justify-center">
+                  <Cookie className="w-6 h-6 text-crust" />
+                </div>
+                <div>
+                  <div className="text-[10px] font-black text-crust/40 uppercase tracking-widest">Your $CRUMB Stash</div>
+                  <div className="font-display text-2xl text-crust comic-text">
+                    {parseFloat(crumbBalance) > 0 ? parseFloat(crumbBalance).toLocaleString(undefined, { maximumFractionDigits: 0 }) : "0"}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+            
+            {!account ? (
+              <Button 
+                onClick={connectWallet}
+                className="meme-button meme-button-primary h-auto text-3xl px-12 py-8"
+              >
+                <Wallet className="mr-4 w-8 h-8" />
+                CONNECT WALLET
+              </Button>
+            ) : (
+              <div className="flex items-center gap-6 bg-white p-4 pr-8 rounded-full border-4 border-meme-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                <div className="w-14 h-14 rounded-full bg-meme-green flex items-center justify-center border-4 border-meme-black">
+                  <div className="w-4 h-4 bg-white rounded-full animate-ping" />
+                </div>
+                <div>
+                  <div className="text-xs text-meme-black/40 font-black uppercase tracking-widest">DEGEN CONNECTED</div>
+                  <div className="font-mono text-xl font-black text-meme-black">{account.slice(0, 6)}...{account.slice(-4)}</div>
+                </div>
               </div>
-              <div>
-                <div className="text-xs text-meme-black/40 font-black uppercase tracking-widest">DEGEN CONNECTED</div>
-                <div className="font-mono text-xl font-black text-meme-black">{account.slice(0, 6)}...{account.slice(-4)}</div>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {!account ? (
@@ -826,7 +985,20 @@ export default function App() {
                 </div>
               </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+          <Tabs defaultValue="sweeper" className="w-full">
+            <div className="flex justify-center mb-12">
+              <TabsList className="bg-black/10 p-2 rounded-2xl border-4 border-messy-border h-auto">
+                <TabsTrigger value="sweeper" className="tabs-trigger px-10 py-4 text-xl data-[state=active]:bg-oven-orange data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl transition-all font-display comic-text uppercase">
+                  🍞 Crumb Sweeper
+                </TabsTrigger>
+                <TabsTrigger value="rewards" className="tabs-trigger px-10 py-4 text-xl data-[state=active]:bg-bakery-blue data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl transition-all font-display comic-text uppercase">
+                  🎨 NFT Oven
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value="sweeper" className="outline-none focus:ring-0">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             {/* Left Column: Baker & Bake Action */}
             <div className="lg:col-span-5 space-y-12">
               <Card className="sweeper-card text-center">
@@ -959,7 +1131,7 @@ export default function App() {
                             className="w-48 h-48 mb-8"
                           >
                             <img 
-                              src="/crustfundsweeper.jpg" 
+                              src="/mascot-sad.jpg" 
                               alt="Crying Bread" 
                               className="w-full h-full object-contain grayscale opacity-30"
                               referrerPolicy="no-referrer"
@@ -1007,12 +1179,121 @@ export default function App() {
                         ~ {finalTotalValue.toFixed(4)} USD
                       </Badge>
                     </div>
+
+                    {selectedNetwork.id === 'base' && (
+                      <div className="flex items-center gap-4 p-4 bg-bakery-blue/10 border-2 border-messy-border rounded-lg animate-pulse">
+                        <Cookie className="w-8 h-8 text-crust" />
+                        <div>
+                          <div className="text-[10px] font-black uppercase tracking-widest text-crust/60">Estimated Bonus Reward</div>
+                          <div className="font-display text-lg text-crust comic-text">
+                            +{Math.max(10, Math.floor(rawTotalValue * 100))} $CRUMB
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </Card>
             </div>
           </div>
-        )}
+        </TabsContent>
+
+        <TabsContent value="rewards" className="outline-none focus:ring-0">
+          <div className="max-w-6xl mx-auto space-y-16">
+            <div className="text-center space-y-6">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+              >
+                <h3 className="text-7xl comic-text italic uppercase tracking-tighter">THE NFT OVEN</h3>
+                <p className="text-2xl font-bold text-crust/60 uppercase tracking-tighter max-w-3xl mx-auto leading-relaxed">
+                  Stack your <span className="text-oven-orange">$CRUMB</span> tokens and exchange them for rare CrustFund Bakery collectibles!
+                </p>
+              </motion.div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+              {[
+          { name: "Legendary Glow Pepe", image: "/nft_legendary.jpg", cost: 5000, rarity: "Legendary", emoji: "🥖", color: "from-yellow-400 to-amber-600", desc: "Forged in the heart of the Base oven with extra gwei." },
+                { name: "Realistic Pepe Burger", image: "/nft_rare.jpg", cost: 1000, rarity: "Rare", emoji: "🍞", color: "from-orange-500 to-red-700", desc: "Deliciously rare and slightly over-proofed." },
+                { name: "Degen Bread Sticker", image: "/nft_comman.jpg", cost: 500, rarity: "Common", emoji: "🥯", color: "from-slate-400 to-slate-600", desc: "A classic crumb-sweeper essential sticker." },
+              ].map((nft, i) => (
+                <motion.div
+                  key={nft.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="sweeper-card group hover:scale-105 transition-all cursor-pointer relative overflow-hidden flex flex-col h-full"
+                >
+                  <div className={cn("absolute inset-0 opacity-10 bg-gradient-to-br transition-opacity group-hover:opacity-20", nft.color)} />
+                  <div className="relative z-10 p-10 space-y-8 flex flex-col items-center flex-1">
+                    <div className={cn(
+                      "w-40 h-40 rounded-[2.5rem] bg-gradient-to-br flex items-center justify-center text-7xl shadow-2xl border-8 border-messy-border transform transition-transform group-hover:rotate-12 overflow-hidden",
+                      nft.color
+                    )}>
+                      {nft.image ? (
+                        <img 
+                          src={nft.image} 
+                          alt={nft.name} 
+                          className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            // Fallback to emoji if image fails
+                            (e.target as HTMLImageElement).style.display = 'none';
+                            (e.target as HTMLImageElement).parentElement!.innerText = nft.emoji;
+                          }}
+                        />
+                      ) : nft.emoji}
+                    </div>
+                    <div className="text-center space-y-3 flex-1">
+                      <div className="flex justify-center gap-2">
+                        <Badge className="bg-black/10 border-2 border-messy-border text-crust font-black text-[10px] uppercase tracking-widest">{nft.rarity}</Badge>
+                      </div>
+                      <h4 className="text-3xl font-display comic-text mb-1 uppercase italic tracking-tighter">{nft.name}</h4>
+                      <p className="text-xs font-bold text-crust/40 uppercase tracking-widest leading-loose">{nft.desc}</p>
+                    </div>
+                    
+                    <div className="w-full pt-8 border-t-4 border-messy-border/20 mt-auto">
+                      <div className="flex justify-between items-center mb-6">
+                        <span className="text-[10px] font-black text-crust/40 uppercase tracking-widest">Rewards Cost</span>
+                        <span className="font-display text-2xl text-crust comic-text">{nft.cost} $CRUMB</span>
+                      </div>
+                      <Button className="w-full meme-button-primary opacity-50 cursor-not-allowed py-8 text-lg font-display tracking-widest">
+                        OVEN READY SOON
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            <Card className="sweeper-card bg-oven-orange/5 border-dashed p-16 text-center border-oven-orange/30 overflow-hidden relative">
+              <div className="absolute top-0 right-0 p-8 rotate-12 opacity-10">
+                <ChefHat className="w-48 h-48 text-oven-orange" />
+              </div>
+              <div className="flex flex-col items-center gap-8 relative z-10">
+                <div className="w-24 h-24 bg-white rounded-full border-4 border-oven-orange flex items-center justify-center shadow-lg">
+                  <Flame className="w-12 h-12 text-oven-orange animate-pulse" />
+                </div>
+                <div className="space-y-6">
+                  <h4 className="text-5xl comic-text italic uppercase">Preheating the Rewards Oven</h4>
+                  <p className="text-xl font-bold text-crust/70 max-w-2xl mx-auto leading-relaxed">
+                    Our NFT collection is currently proofing in the kitchen. Once the oven reaches full temp, you'll be able to claim these exclusive assets with the <span className="text-oven-orange">$CRUMB</span> tokens you earn from sweeping crumbs!
+                  </p>
+                </div>
+                <div className="pt-8 flex gap-4">
+                  <div className="w-4 h-4 rounded-full bg-oven-orange animate-bounce" style={{ animationDelay: '0s' }} />
+                  <div className="w-4 h-4 rounded-full bg-oven-orange animate-bounce" style={{ animationDelay: '0.2s' }} />
+                  <div className="w-4 h-4 rounded-full bg-oven-orange animate-bounce" style={{ animationDelay: '0.4s' }} />
+                </div>
+              </div>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+    )}
       </main>
 
       {/* Footer / Status Bar */}
@@ -1027,12 +1308,22 @@ export default function App() {
             OVEN TEMP: <span className="text-oven-orange tracking-normal">69 GWEI</span>
           </div>
         </div>
-        <div className="flex gap-10">
+        <div className="flex gap-10 items-center">
+          <div className="hidden lg:flex items-center gap-2 text-oven-orange">
+            <Cookie className="w-4 h-4" />
+            REWARDS LIVE ON BASE
+          </div>
           <span className="hover:text-oven-orange cursor-pointer transition-colors">RECIPE BOOK</span>
           <span className="hover:text-oven-orange cursor-pointer transition-colors">CONTACT CHEF</span>
           <span className="text-crust/10">v6.9.0-DEGEN</span>
         </div>
       </footer>
+
+      <RewardModal 
+        isOpen={showBonusClaim} 
+        onClose={() => setShowBonusClaim(false)} 
+        amount={earnedBonus}
+      />
       <Analytics />
     </div>
   );
