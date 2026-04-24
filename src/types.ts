@@ -27,12 +27,12 @@ export interface Network {
 }
 
 export const NETWORKS: Network[] = [
-  { id: 'base', name: 'Base', icon: '🔵', stickerUrl: '/base.png', nativeCurrency: 'ETH', chainId: 8453 },
-  { id: 'eth', name: 'Ethereum', icon: '💎', stickerUrl: '/ethereum.png', nativeCurrency: 'ETH', chainId: 1 },
-  { id: 'polygon', name: 'Polygon', icon: '🟣', stickerUrl: '/ethereum.png', nativeCurrency: 'POL', chainId: 137 },
-  { id: 'avalanche', name: 'Avalanche', icon: '🔺', stickerUrl: '/avalanche.png', nativeCurrency: 'AVAX', chainId: 43114 },
-  { id: 'bsc', name: 'BSC', icon: '🟡', stickerUrl: '/bsc.png', nativeCurrency: 'BNB', chainId: 56 },
-  { id: 'arbitrum', name: 'Arbitrum', icon: '💙', stickerUrl: '/arbitrum.png', nativeCurrency: 'ETH', chainId: 42161 },
+  { id: 'base', name: 'Base', icon: '🔵', stickerUrl: '/base.jpg', nativeCurrency: 'ETH', chainId: 8453 },
+  { id: 'eth', name: 'Ethereum', icon: '💎', stickerUrl: '/ethereum.jpg', nativeCurrency: 'ETH', chainId: 1 },
+  { id: 'polygon', name: 'Polygon', icon: '🟣', stickerUrl: '/ethereum.jpg', nativeCurrency: 'POL', chainId: 137 },
+  { id: 'avalanche', name: 'Avalanche', icon: '🔺', stickerUrl: '/avalanche.jpg', nativeCurrency: 'AVAX', chainId: 43114 },
+  { id: 'bsc', name: 'BSC', icon: '🟡', stickerUrl: '/bsc.jpg', nativeCurrency: 'BNB', chainId: 56 },
+  { id: 'arbitrum', name: 'Arbitrum', icon: '💙', stickerUrl: '/arbitrum.jpg', nativeCurrency: 'ETH', chainId: 42161 },
 ];
 
 export const MOCK_CRUMBS: Record<string, Token[]> = {
