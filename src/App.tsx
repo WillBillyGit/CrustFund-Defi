@@ -53,7 +53,7 @@ const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolea
         transition={{ duration: 0.3, repeat: Infinity }}
       >
         <img 
-          src={isBaking ? "/mascot-baking.jpg" : "/mascot-happy.jpg"} 
+          src={isBaking ? "/mascot-baking.png" : "/mascot-happy.png"} 
           alt="Mascot" 
           className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
           referrerPolicy="no-referrer"
@@ -80,7 +80,7 @@ const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolea
   );
 };
 
-const RewardModal = ({ isOpen, onClose, amount }: { isOpen: boolean, onClose: () => void, amount: string }) => {
+const RewardModal = ({ isOpen, onClose, amount, networkName }: { isOpen: boolean, onClose: () => void, amount: string, networkName: string }) => {
   const addCrumbToWallet = async () => {
     if (typeof window.ethereum !== 'undefined') {
       try {
@@ -149,7 +149,7 @@ const RewardModal = ({ isOpen, onClose, amount }: { isOpen: boolean, onClose: ()
                   +{amount} $CRUMB
                 </div>
                 <div className="mt-2 text-[10px] font-black uppercase tracking-[0.2em] text-crust/40">
-                  Transaction Verified • Base Chain
+                  Transaction Verified • {networkName} Chain
                 </div>
               </div>
 
@@ -302,7 +302,7 @@ const CONTRACT_ADDRESSES: Record<string, string> = {
   polygon: "0x0000000000000000000000000000000000000000",
   avalanche: "0x0000000000000000000000000000000000000000",
   bsc: "0x6f2a94532a391aa66a79098cab033dd303bd2790",
-  arbitrum: "0x0000000000000000000000000000000000000000",
+  arbitrum: "0xDD76B610865cc82196AaB39d73E6028a5d96C7Aa",
 };
 
 const CRUMB_TOKEN_BASE = "0xa6de7624947d2b56d5d3f0351452d369428cec73";
@@ -763,7 +763,7 @@ export default function App() {
               className="w-48 h-48 drop-shadow-[0_10px_20px_rgba(0,0,0,0.1)]"
             >
               <img 
-                src="/logo.jpg" 
+                src="/logo.png" 
                 alt="CrustFund Logo" 
                 className="w-full h-full object-contain"
                 referrerPolicy="no-referrer"
@@ -798,12 +798,12 @@ export default function App() {
               <div>
                 <div className="text-[10px] font-black text-crust uppercase tracking-tight">Status: Oven is Hot!</div>
                 <div className="text-sm font-display text-oven-orange comic-text leading-none mt-1">
-                  LIVE ON BASE 🔵 & BNB 🟡
+                  LIVE ON BASE 🔵, BNB 🟡 & ARB 💙
                 </div>
               </div>
             </div>
             <div className="mt-3 pt-3 border-t-2 border-messy-border/20 text-[9px] font-bold text-crust/40 italic uppercase tracking-widest">
-              More chains heating up soon... 🔥
+              Ethereum, Polygon & Avalanche heating up... 🔥
             </div>
           </motion.div>
 
@@ -955,7 +955,7 @@ export default function App() {
               <div className="sweeper-card text-center max-w-2xl mx-auto overflow-hidden relative">
                 <div className="absolute inset-0 opacity-5 pointer-events-none">
                   <img 
-                    src="/kitchen-is-closed.jpg" 
+                    src="/kitchen-is-closed.png" 
                     alt="Background" 
                     className="w-full h-full object-cover opacity-20"
                     referrerPolicy="no-referrer"
@@ -964,7 +964,7 @@ export default function App() {
                 <div className="relative z-10">
                   <div className="w-48 h-48 mx-auto mb-8">
                     <img 
-                      src="/kitchen-is-closed.jpg" 
+                      src="/kitchen-is-closed.png" 
                       alt="CrustFund Sweeper Mascot" 
                       className="w-full h-full object-contain rounded-lg border-2 border-messy-border"
                       referrerPolicy="no-referrer"
@@ -1131,7 +1131,7 @@ export default function App() {
                             className="w-48 h-48 mb-8"
                           >
                             <img 
-                              src="/mascot-sad.jpg" 
+                              src="/mascot-sad.png" 
                               alt="Crying Bread" 
                               className="w-full h-full object-contain grayscale opacity-30"
                               referrerPolicy="no-referrer"
@@ -1215,9 +1215,9 @@ export default function App() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
               {[
-          { name: "Legendary Glow Pepe", image: "/nft_legendary.jpg", cost: 5000, rarity: "Legendary", emoji: "🥖", color: "from-yellow-400 to-amber-600", desc: "Forged in the heart of the Base oven with extra gwei." },
-                { name: "Realistic Pepe Burger", image: "/nft_rare.jpg", cost: 1000, rarity: "Rare", emoji: "🍞", color: "from-orange-500 to-red-700", desc: "Deliciously rare and slightly over-proofed." },
-                { name: "Degen Bread Sticker", image: "/nft_comman.jpg", cost: 500, rarity: "Common", emoji: "🥯", color: "from-slate-400 to-slate-600", desc: "A classic crumb-sweeper essential sticker." },
+          { name: "Legendary Glow Pepe", image: "/nft_legendary.png", cost: 5000, rarity: "Legendary", emoji: "🥖", color: "from-yellow-400 to-amber-600", desc: "Forged in the heart of the CrustFund oven with extra gwei." },
+                { name: "Realistic Pepe Burger", image: "/nft_rare.png", cost: 1000, rarity: "Rare", emoji: "🍞", color: "from-orange-500 to-red-700", desc: "Deliciously rare and slightly over-proofed." },
+                { name: "Degen Bread Sticker", image: "/nft_comman.png", cost: 500, rarity: "Common", emoji: "🥯", color: "from-slate-400 to-slate-600", desc: "A classic crumb-sweeper essential sticker." },
               ].map((nft, i) => (
                 <motion.div
                   key={nft.name}
@@ -1311,7 +1311,7 @@ export default function App() {
         <div className="flex gap-10 items-center">
           <div className="hidden lg:flex items-center gap-2 text-oven-orange">
             <Cookie className="w-4 h-4" />
-            REWARDS LIVE ON BASE
+            REWARDS LIVE ON BASE & ARB
           </div>
           <span className="hover:text-oven-orange cursor-pointer transition-colors">RECIPE BOOK</span>
           <span className="hover:text-oven-orange cursor-pointer transition-colors">CONTACT CHEF</span>
@@ -1323,6 +1323,7 @@ export default function App() {
         isOpen={showBonusClaim} 
         onClose={() => setShowBonusClaim(false)} 
         amount={earnedBonus}
+        networkName={selectedNetwork.name}
       />
       <Analytics />
     </div>

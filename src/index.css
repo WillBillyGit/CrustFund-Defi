@@ -45,7 +45,7 @@
 @layer base {
   body {
     @apply text-crust font-sans antialiased min-h-screen bg-bakery-blue;
-    background-image: url('/background.jpg');
+    background-image: url('/background.png');
     background-repeat: no-repeat;
     background-position: center;
     background-attachment: fixed;
