@@ -53,7 +53,7 @@ const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolea
         transition={{ duration: 0.3, repeat: Infinity }}
       >
         <img 
-          src={isBaking ? "/mascot-baking.jpg" : "/mascot-happy.jpg"} 
+          src={isBaking ? "/mascot-baking.png" : "/mascot-happy.png"} 
           alt="Mascot" 
           className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
           referrerPolicy="no-referrer"
@@ -92,7 +92,7 @@ const RewardModal = ({ isOpen, onClose, amount, networkName }: { isOpen: boolean
               address: CRUMB_TOKEN_BASE,
               symbol: 'CRUMB',
               decimals: 18,
-              image: 'https://crust.fund/logo.jpg', 
+              image: 'https://crust.fund/logo.png', 
             },
           },
         });
@@ -764,7 +764,7 @@ export default function App() {
             >
               <img 
                 src="/logo.png" 
-                alt="CrustFund Logo" 
+                alt="CrustFund logo" 
                 className="w-full h-full object-contain"
                 referrerPolicy="no-referrer"
               />
@@ -953,19 +953,12 @@ export default function App() {
 
         {!account ? (
               <div className="sweeper-card text-center max-w-2xl mx-auto overflow-hidden relative">
-                <div className="absolute inset-0 opacity-5 pointer-events-none">
-                  <img 
-                    src="/kitchen-is-closed.jpg" 
-                    alt="Background" 
-                    className="w-full h-full object-cover opacity-20"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
+                <div className="absolute inset-0 opacity-5 pointer-events-none bg-oven-orange/10" />
                 <div className="relative z-10">
                   <div className="w-48 h-48 mx-auto mb-8">
                     <img 
-                      src="/kitchen-is-closed.jpg" 
-                      alt="CrustFund Sweeper Mascot" 
+                      src="/kitchen-is-closed.png" 
+                      alt="Kitchen is Closed" 
                       className="w-full h-full object-contain rounded-lg border-2 border-messy-border"
                       referrerPolicy="no-referrer"
                     />
@@ -1131,7 +1124,7 @@ export default function App() {
                             className="w-48 h-48 mb-8"
                           >
                             <img 
-                              src="/mascot-sad.jpg" 
+                              src="/mascot-sad.png" 
                               alt="Crying Bread" 
                               className="w-full h-full object-contain grayscale opacity-30"
                               referrerPolicy="no-referrer"
@@ -1215,9 +1208,9 @@ export default function App() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
               {[
-          { name: "Legendary Glow Pepe", image: "/nft_legendary.jpg", cost: 5000, rarity: "Legendary", emoji: "🥖", color: "from-yellow-400 to-amber-600", desc: "Forged in the heart of the CrustFund oven with extra gwei." },
-                { name: "Realistic Pepe Burger", image: "/nft_rare.jpg", cost: 1000, rarity: "Rare", emoji: "🍞", color: "from-orange-500 to-red-700", desc: "Deliciously rare and slightly over-proofed." },
-                { name: "Degen Bread Sticker", image: "/nft_comman.jpg", cost: 500, rarity: "Common", emoji: "🥯", color: "from-slate-400 to-slate-600", desc: "A classic crumb-sweeper essential sticker." },
+                { name: "Legendary Glow Pepe", image: "/nft_legendary.png", cost: 5000, rarity: "Legendary", emoji: "🥖", color: "from-yellow-400 to-amber-600", desc: "Forged in the heart of the CrustFund oven with extra gwei." },
+                { name: "Realistic Pepe Burger", image: "/nft_rare.png", cost: 1000, rarity: "Rare", emoji: "🍞", color: "from-orange-500 to-red-700", desc: "Deliciously rare and slightly over-proofed." },
+                { name: "Degen Bread Sticker", image: "/nft_comman.png", cost: 500, rarity: "Common", emoji: "🥯", color: "from-slate-400 to-slate-600", desc: "A classic crumb-sweeper essential sticker." },
               ].map((nft, i) => (
                 <motion.div
                   key={nft.name}
