@@ -36,13 +36,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NETWORKS, MOCK_CRUMBS, Token, Network } from './types';
 import { cn } from '@/lib/utils';
 import { ethers } from 'ethers';
-
+import {logo} from ./public/crustfundlogo.jpg
 // --- Components ---
 
 const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolean }) => {
   return (
     <div className="relative w-72 h-72 mx-auto mb-12">
-      {/* The Burger Chef / Mascot */}
+      {logo}
       <motion.div 
         className="absolute inset-0 z-10"
         animate={isBaking ? { 
@@ -53,7 +53,7 @@ const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolea
         transition={{ duration: 0.3, repeat: Infinity }}
       >
         <img 
-          src={isBaking ? "/mascot-baking.png" : "/mascot-happy.png"} 
+          src={isBaking ? "/crustfund_sweeping_logo.jpg"} 
           alt="Mascot" 
           className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
           referrerPolicy="no-referrer"
@@ -92,7 +92,7 @@ const RewardModal = ({ isOpen, onClose, amount, networkName }: { isOpen: boolean
               address: CRUMB_TOKEN_BASE,
               symbol: 'CRUMB',
               decimals: 18,
-              image: 'https://crust.fund/logo.png', 
+              image: '/crustfund_sweeping_logo.jpg', 
             },
           },
         });
@@ -763,7 +763,7 @@ export default function App() {
               className="w-48 h-48 drop-shadow-[0_10px_20px_rgba(0,0,0,0.1)]"
             >
               <img 
-                src="/logo.png" 
+                src="/crustfund_sweeping_logo.jpg" 
                 alt="CrustFund logo" 
                 className="w-full h-full object-contain"
                 referrerPolicy="no-referrer"
@@ -957,7 +957,7 @@ export default function App() {
                 <div className="relative z-10">
                   <div className="w-48 h-48 mx-auto mb-8">
                     <img 
-                      src="/kitchen-is-closed.png" 
+                      src="/crustfund_sweeping_logo.jpg" 
                       alt="Kitchen is Closed" 
                       className="w-full h-full object-contain rounded-lg border-2 border-messy-border"
                       referrerPolicy="no-referrer"
@@ -973,7 +973,7 @@ export default function App() {
                     onClick={connectWallet}
                     className="meme-button meme-button-primary"
                   >
-                    CONNECT NOW ANON
+                    CONNECT NOW 
                   </Button>
                 </div>
               </div>
@@ -1045,8 +1045,8 @@ export default function App() {
                   <Skull className="w-8 h-8 text-oven-orange" />
                 </div>
                 <div className="text-lg text-parchment font-bold leading-relaxed">
-                  <strong className="text-oven-orange block mb-2 font-display text-3xl comic-text">WAGMI!</strong>
-                  Crumbs are those tiny, useless balances. We bake them into one big loaf so you can actually trade them!
+                  <strong className="text-oven-orange block mb-2 font-display text-3xl comic-text"</strong>
+                  Crumbs are those tiny, useless balances. We bake them into one big eth loaf so you can actually trade them!
                 </div>
               </div>
             </div>
@@ -1208,7 +1208,7 @@ export default function App() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
               {[
-                { name: "Legendary Glow Pepe", image: "/nft_legendary.png", cost: 5000, rarity: "Legendary", emoji: "🥖", color: "from-yellow-400 to-amber-600", desc: "Forged in the heart of the CrustFund oven with extra gwei." },
+                { name: "Legendary Glow Pepe", image: "/image (11).jpg", cost: 5000, rarity: "Legendary", emoji: "🥖", color: "from-yellow-400 to-amber-600", desc: "Forged in the heart of the CrustFund oven with extra gwei." },
                 { name: "Realistic Pepe Burger", image: "/nft_rare.png", cost: 1000, rarity: "Rare", emoji: "🍞", color: "from-orange-500 to-red-700", desc: "Deliciously rare and slightly over-proofed." },
                 { name: "Degen Bread Sticker", image: "/nft_comman.png", cost: 500, rarity: "Common", emoji: "🥯", color: "from-slate-400 to-slate-600", desc: "A classic crumb-sweeper essential sticker." },
               ].map((nft, i) => (
