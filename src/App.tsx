@@ -36,7 +36,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NETWORKS, MOCK_CRUMBS, Token, Network } from './types';
 import { cn } from '@/lib/utils';
 import { ethers } from 'ethers';
-import {logo} from ./public/crustfundlogo.jpg
+
 // --- Components ---
 
 const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolean }) => {
