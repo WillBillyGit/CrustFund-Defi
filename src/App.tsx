@@ -1045,10 +1045,9 @@ export default function App() {
                   <Skull className="w-8 h-8 text-oven-orange" />
                 </div>
                 <div className="text-lg text-parchment font-bold leading-relaxed">
-                  <strong className="text-oven-orange block mb-2 font-display text-3xl comic-text"</strong>
-                  Crumbs are those tiny, useless balances. We bake them into one big eth loaf so you can actually trade them!
-                </div>
-              </div>
+  <strong className="text-oven-orange block mb-2 font-display text-3xl comic-text">WHAT ARE CRUMBS?:</strong>
+  Crumbs are those tiny, useless balances. We bake them into one big eth loaf so you can actually trade them!
+</div>
             </div>
 
             {/* Right Column: Crumb List */}
