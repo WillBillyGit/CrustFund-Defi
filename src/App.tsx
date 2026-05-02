@@ -53,7 +53,7 @@ const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolea
         transition={{ duration: 0.3, repeat: Infinity }}
       >
         <img 
-          src={isBaking ? "/crustfund_sweeping_logo.jpg"} 
+          src={isBaking ? "/crustfund_sweeping_logo.jpg" : "/Melted Sad Version (Down Market).jpg"} 
           alt="Mascot" 
           className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
           referrerPolicy="no-referrer"
