@@ -1048,7 +1048,8 @@ export default function App() {
   <strong className="text-oven-orange block mb-2 font-display text-3xl comic-text">WHAT ARE CRUMBS?:</strong>
   Crumbs are those tiny, useless balances. We bake them into one big eth loaf so you can actually trade them!
 </div>
-            </div>
+ </div>  
+  </div>
 
             {/* Right Column: Crumb List */}
             <div className="lg:col-span-7">
