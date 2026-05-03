@@ -40,25 +40,7 @@ import { ethers } from 'ethers';
 
 // --- Components ---
 
-const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolean }) => {
-  return (
-    <div className="relative w-72 h-72 mx-auto mb-12"></div>
-      <motion.div 
-        className="absolute inset-0 z-10"
-        animate={isBaking ? { 
-          scale: [1, 1.1, 1], 
-          rotate: [-5, 5, -5],
-          filter: ["hue-rotate(0deg)", "hue-rotate(90deg)", "hue-rotate(0deg)"]
-        } : { y: [0, -10, 0] }}
-        transition={{ duration: 0.3, repeat: Infinity }}
-      >
-        <img 
-          src={isBaking ? "/crustfund_sweeping_logo.jpg" : "/Melted Sad Version (Down Market).jpg"} 
-          alt="Mascot" 
-          className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
-          referrerPolicy="no-referrer"
-        />
-      </motion.div>
+
 
       {/* Floating Meme Icons */}
       <AnimatePresence>
