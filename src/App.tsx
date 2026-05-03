@@ -43,7 +43,7 @@ import { ethers } from 'ethers';
 const MemeMascot = ({ progress, isBaking }: { progress: number; isBaking: boolean }) => {
   return (
     <div className="relative w-64 h-64 mx-auto mb-8 flex items-center justify-center">
-      {/* Background Glow Effect */}
+      {/* Background Glow */}
       <AnimatePresence>
         {isBaking && (
           <motion.div
@@ -51,22 +51,55 @@ const MemeMascot = ({ progress, isBaking }: { progress: number; isBaking: boolea
             animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
             exit={{ opacity: 0 }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="absolute inset-0 bg-oven-orange rounded-full blur-3xl"
+            className="absolute inset-0 bg-orange-500 rounded-full blur-3xl"
           />
         )}
       </AnimatePresence>
 
       {/* The Mascot Image */}
       <motion.div
-        animate={isBaking ? {
-          y: [0, -10, 0],
-          rotate: [-1, 1, -1],
-          scale: [1, 1.02, 1]
-        } : {
-          y: [0, -5, 0]
-        }}
+        animate={isBaking ? { y: [0, -10, 0], rotate: [-1, 1, -1] } : { y: [0, -5, 0] }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         className="relative z-10 w-full h-full"
+      >
+        <img
+          src={isBaking ? "/crustfundlogo.jpg" : "/mascot-sad.png"}
+          alt="Mascot"
+          className={`w-full h-full object-contain rounded-2xl border-4 border-amber-900/20 shadow-xl transition-all duration-500 ${
+            isBaking ? "sepia-0" : "grayscale opacity-80"
+          }`}
+        />
+      </motion.div>
+
+      {/* Progress Ring */}
+      <svg className="absolute inset-0 w-full h-full -rotate-90">
+        <circle
+          cx="128"
+          cy="128"
+          r="120"
+          stroke="currentColor"
+          strokeWidth="8"
+          fill="transparent"
+          className="text-black/5"
+        />
+        <motion.circle
+          cx="128"
+          cy="128"
+          r="120"
+          stroke="currentColor"
+          strokeWidth="8"
+          fill="transparent"
+          strokeDasharray="754"
+          initial={{ strokeDashoffset: 754 }}
+          animate={{ strokeDashoffset: 754 - (754 * progress) / 100 }}
+          className="text-orange-500"
+        />
+      </svg>
+    </div>
+  );
+};
+
+      
       >
         <img
           src={isBaking ? "/crustfundlogo.jpg" : "/mascot-sad.png"}
