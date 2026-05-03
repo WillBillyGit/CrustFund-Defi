@@ -73,7 +73,7 @@ const MemeMascot = ({ progress, isBaking }: { progress: number; isBaking: boolea
         className="relative z-10 w-full h-full"
       >
         <img
-          src={isBaking ? "/crustfundlogo.jpg" : "/mascot-sad.png"}
+          src={isBaking ? "/crustfundlogo.jpg" : "/mascot-sad.jpg"}
           alt="Mascot"
           className={`w-full h-full object-contain rounded-2xl border-4 border-amber-900/20 shadow-xl transition-all duration-500 ${
             isBaking ? "sepia-0 brightness-110" : "grayscale opacity-80"
