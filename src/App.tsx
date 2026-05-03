@@ -100,7 +100,7 @@ const MemeMascot = ({ progress, isBaking }: { progress: number; isBaking: boolea
 };
 
       
-      >
+      
         <img
           src={isBaking ? "/crustfundlogo.jpg" : "/mascot-sad.png"}
           alt="CrustFund Mascot"
