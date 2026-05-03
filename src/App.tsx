@@ -42,7 +42,7 @@ import { ethers } from 'ethers';
 
 const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolean }) => {
   return (
-    <div className="relative w-72 h-72 mx-auto mb-12"
+    <div className="relative w-72 h-72 mx-auto mb-12"></div>
       <motion.div 
         className="absolute inset-0 z-10"
         animate={isBaking ? { 
