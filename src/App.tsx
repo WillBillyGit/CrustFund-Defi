@@ -40,7 +40,88 @@ import { ethers } from 'ethers';
 
 // --- Components ---
 
+const MemeMascot = ({ progress, isBaking }: { progress: number; isBaking: boolean }) => {
+  return (
+    <div className="relative w-64 h-64 mx-auto mb-8 flex items-center justify-center">
+      {/* Background Glow Effect */}
+      <AnimatePresence>
+        {isBaking && (
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="absolute inset-0 bg-oven-orange rounded-full blur-3xl"
+          />
+        )}
+      </AnimatePresence>
 
+      {/* The Mascot Image */}
+      <motion.div
+        animate={isBaking ? {
+          y: [0, -10, 0],
+          rotate: [-1, 1, -1],
+          scale: [1, 1.02, 1]
+        } : {
+          y: [0, -5, 0]
+        }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        className="relative z-10 w-full h-full"
+      >
+        <img
+          src={isBaking ? "/crustfundlogo.jpg" : "/mascot-sad.png"}
+          alt="CrustFund Mascot"
+          className={cn(
+            "w-full h-full object-contain rounded-2xl border-4 border-messy-border shadow-huge transition-all duration-500",
+            isBaking ? "sepia-0 brightness-110" : "grayscale opacity-80"
+          )}
+        />
+        
+        {/* Steam particles when baking */}
+        {isBaking && (
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex gap-2">
+            {[0, 1, 2].map((i) => (
+              <motion.div
+                key={i}
+                initial={{ y: 0, opacity: 0 }}
+                animate={{ y: -40, opacity: [0, 1, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.4 }}
+                className="text-2xl"
+              >
+                ☁️
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </motion.div>
+
+      {/* Progress Ring Overlay */}
+      <svg className="absolute inset-0 w-full h-full -rotate-90">
+        <circle
+          cx="128"
+          cy="128"
+          r="120"
+          stroke="currentColor"
+          strokeWidth="8"
+          fill="transparent"
+          className="text-messy-border/10"
+        />
+        <motion.circle
+          cx="128"
+          cy="128"
+          r="120"
+          stroke="currentColor"
+          strokeWidth="8"
+          fill="transparent"
+          strokeDasharray="753.98"
+          initial={{ strokeDashoffset: 753.98 }}
+          animate={{ strokeDashoffset: 753.98 - (753.98 * progress) / 100 }}
+          className="text-oven-orange"
+        />
+      </svg>
+    </div>
+  );
+};
 
       {/* Floating Meme Icons */}
       <AnimatePresence>
@@ -74,7 +155,7 @@ const RewardModal = ({ isOpen, onClose, amount, networkName }: { isOpen: boolean
               address: CRUMB_TOKEN_BASE,
               symbol: 'CRUMB',
               decimals: 18,
-              image: '/crustfund_sweeping_logo.jpg', 
+              image: '/crustfundsweepinglogo.jpg', 
             },
           },
         });
@@ -939,7 +1020,7 @@ export default function App() {
                 <div className="relative z-10">
                   <div className="w-48 h-48 mx-auto mb-8">
                     <img 
-                      src="/crustfund_sweeping_logo.jpg" 
+                      src="/crustfundsweepinglogo.jpg" 
                       alt="Kitchen is Closed" 
                       className="w-full h-full object-contain rounded-lg border-2 border-messy-border"
                       referrerPolicy="no-referrer"
