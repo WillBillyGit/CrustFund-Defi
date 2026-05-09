@@ -35,6 +35,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NETWORKS, MOCK_CRUMBS, Token, Network } from './types';
 import { cn } from '@/lib/utils';
+import regeneratedNftImage from './assets/images/regenerated_image_1778323212439.jpg';
 import { ethers } from 'ethers';
 
 // --- Components ---
@@ -1213,7 +1214,7 @@ export default function App() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
               {[
-                { name: "Legendary Glow Pepe", image: "/nft_legendary.png", cost: 5000, rarity: "Legendary", emoji: "🥖", color: "from-yellow-400 to-amber-600", desc: "Forged in the heart of the CrustFund oven with extra gwei." },
+                { name: "Legendary Glow Pepe", image: regeneratedNftImage, cost: 5000, rarity: "Legendary", emoji: "🥖", color: "from-yellow-400 to-amber-600", desc: "Forged in the heart of the CrustFund oven with extra gwei." },
                 { name: "Realistic Pepe Burger", image: "/nft_rare.png", cost: 1000, rarity: "Rare", emoji: "🍞", color: "from-orange-500 to-red-700", desc: "Deliciously rare and slightly over-proofed." },
                 { name: "Degen Bread Sticker", image: "/nft_comman.png", cost: 500, rarity: "Common", emoji: "🥯", color: "from-slate-400 to-slate-600", desc: "A classic crumb-sweeper essential sticker." },
               ].map((nft, i) => (
