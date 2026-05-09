@@ -28,7 +28,7 @@ export interface Network {
 
 export const NETWORKS: Network[] = [
   { id: 'base', name: 'Base', icon: '🔵', stickerUrl: '/base.png', nativeCurrency: 'ETH', chainId: 8453 },
-  { id: 'eth', name: 'Ethereum', icon: '💎', stickerUrl: '/ethereum.png', nativeCurrency: 'ETH', chainId: 1 },
+  { id: 'optimism', name: 'Optimism', icon: '🔴', stickerUrl: '/optimism.png', nativeCurrency: 'ETH', chainId: 10 },
   { id: 'polygon', name: 'Polygon', icon: '🟣', stickerUrl: '/ethereum.png', nativeCurrency: 'POL', chainId: 137 },
   { id: 'avalanche', name: 'Avalanche', icon: '🔺', stickerUrl: '/avalanche.png', nativeCurrency: 'AVAX', chainId: 43114 },
   { id: 'bsc', name: 'BSC', icon: '🟡', stickerUrl: '/bsc.png', nativeCurrency: 'BNB', chainId: 56 },
@@ -41,7 +41,7 @@ export const MOCK_CRUMBS: Record<string, Token[]> = {
     { id: '0xac1bd24658511a126d2416166451a974bc07e4aa', symbol: 'TOSHI', name: 'Toshi', balance: '50000', valueUsd: 0.85, coingeckoId: 'toshi', icon: 'https://assets.coingecko.com/coins/images/31333/standard/toshi.png' },
     { id: '0x4ed4e862860bed51a9570b96d89af5e1b0efefed', symbol: 'DEGEN', name: 'Degen', balance: '1200', valueUsd: 0.12, coingeckoId: 'degen-base', icon: 'https://assets.coingecko.com/coins/images/34515/standard/degen.png' },
   ],
-  eth: [
+  optimism: [
     { id: '0x6982508145454ce325ddbe47a25d4ec3d2311933', symbol: 'PEPE', name: 'Pepe', balance: '1240500', valueUsd: 0.45, coingeckoId: 'pepe', icon: 'https://assets.coingecko.com/coins/images/29850/standard/pepe-token.png' },
     { id: '0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce', symbol: 'SHIB', name: 'Shiba Inu', balance: '50000', valueUsd: 1.20, coingeckoId: 'shiba-inu', icon: 'https://assets.coingecko.com/coins/images/11939/standard/shiba.png' },
     { id: '0x514910771af9ca656af840dff83e8264ecf986ca', symbol: 'LINK', name: 'Chainlink', balance: '0.005', valueUsd: 0.08, coingeckoId: 'chainlink', icon: 'https://assets.coingecko.com/coins/images/877/standard/chainlink.png' },
