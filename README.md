@@ -18,7 +18,7 @@ Degens naturally accumulate hundreds of "crumbs"—tiny balances of tokens from 
 The oven is currently hot on **Base Mainnet**, **BNB Smart Chain** and **Arbitrum**!
 - **Base**: `0x0CDcD1499558C603B0244C66E7f9561C94dC3f31`
 - **BNB Chain**: `0x6f2a94532a391aa66a79098cab033dd303bd2790`
-- **Arbitrum**: `0xDD76B610865cc82196AaB39d73E6028a5d96C7Aa`
+- **Arbitrum**: `0x12b3773be0B88f43E64b979bBC3d8bb6E59dFAAb`
 - *More chains (Ethereum, Polygon, Avalanche) heating up soon...*
 
 ## 🛠️ Tech Stack

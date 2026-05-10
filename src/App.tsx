@@ -35,32 +35,13 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NETWORKS, MOCK_CRUMBS, Token, Network } from './types';
 import { cn } from '@/lib/utils';
-import regeneratedNftImage from './assets/images/regenerated_image_1778323212439.jpg';
 import { ethers } from 'ethers';
 
 // --- Components ---
 
-const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolean }) => {
+const MemeMascot = ({ progress, isBaking, hasError }: { progress: number, isBaking: boolean, hasError?: boolean }) => {
   return (
-    <div className="relative w-72 h-72 mx-auto mb-12">
-      {/* The Burger Chef / Mascot */}
-      <motion.div 
-        className="absolute inset-0 z-10"
-        animate={isBaking ? { 
-          scale: [1, 1.1, 1], 
-          rotate: [-5, 5, -5],
-          filter: ["hue-rotate(0deg)", "hue-rotate(90deg)", "hue-rotate(0deg)"]
-        } : { y: [0, -10, 0] }}
-        transition={{ duration: 0.3, repeat: Infinity }}
-      >
-        <img 
-          src={isBaking ? "/mascot-baking.png" : "/mascot-happy.png"} 
-          alt="Mascot" 
-          className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
-          referrerPolicy="no-referrer"
-        />
-      </motion.div>
-
+    <div className="relative w-72 h-72 mx-auto mb-12 flex items-center justify-center">
       {/* Floating Meme Icons */}
       <AnimatePresence>
         {isBaking && [Rocket, TrendingUp, Skull, Ghost, Smile].map((Icon, i) => (
@@ -77,6 +58,44 @@ const MemeMascot = ({ progress, isBaking }: { progress: number, isBaking: boolea
           </motion.div>
         ))}
       </AnimatePresence>
+
+      {/* Progress Ring */}
+      <svg className="absolute inset-0 w-full h-full -rotate-90">
+        <circle
+          cx="144"
+          cy="144"
+          r="130"
+          stroke="currentColor"
+          strokeWidth="12"
+          fill="transparent"
+          className="text-messy-border"
+        />
+        <motion.circle
+          cx="144"
+          cy="144"
+          r="130"
+          stroke="currentColor"
+          strokeWidth="12"
+          strokeDasharray="816.8"
+          initial={{ strokeDashoffset: 816.8 }}
+          animate={{ strokeDashoffset: 816.8 - (816.8 * progress) / 100 }}
+          fill="transparent"
+          className="text-oven-orange"
+          strokeLinecap="round"
+        />
+      </svg>
+
+      <div className="text-center z-10 space-y-2">
+        <div className={cn(
+          "font-display text-4xl uppercase tracking-tighter",
+          hasError ? "text-red-500" : "text-oven-orange"
+        )}>
+          {isBaking ? "BAKING" : (hasError ? "FAILED" : "IDLE")}
+        </div>
+        <div className="font-mono text-2xl font-black text-crust">
+          {progress}%
+        </div>
+      </div>
     </div>
   );
 };
@@ -197,20 +216,52 @@ const TokenCard = ({ token, isSelected, onToggle }: TokenCardProps) => {
     <motion.div
       layout
       initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
+      animate={{ 
+        opacity: 1, 
+        x: 0,
+        borderColor: isRisky ? ["#dc2626", "#ef4444", "#dc2626"] : (isSelected ? "#f59e0b" : "#451a03"),
+      }}
+      transition={{ 
+        borderColor: isRisky ? { duration: 2, repeat: Infinity } : { duration: 0.2 },
+        opacity: { duration: 0.3 },
+        x: { duration: 0.3 }
+      }}
       whileHover={{ scale: 1.02, y: -2 }}
       onClick={onToggle}
       className={cn(
-        "p-6 rounded-lg border-4 cursor-pointer transition-all flex flex-col mb-4 relative",
+        "p-6 rounded-lg border-4 cursor-pointer transition-all flex flex-col mb-4 relative overflow-hidden",
         isSelected 
-          ? "bg-oven-orange/20 border-oven-orange text-crust shadow-[inset_0_0_15px_rgba(255,140,0,0.1)]" 
+          ? "bg-oven-orange/20 text-crust shadow-[inset_0_0_15px_rgba(255,140,0,0.1)]" 
           : "bg-meme-black/70 border-messy-border hover:border-oven-orange/50",
-        isRisky && "border-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]"
+        isRisky && "shadow-[0_0_20px_rgba(220,38,38,0.3)] border-red-600"
       )}
     >
-      <div className="flex items-center justify-between w-full">
+      {/* Risk Overlay Pattern */}
+      {isRisky && (
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none select-none overflow-hidden">
+          <div className="absolute inset-0 rotate-12 scale-150 flex flex-wrap gap-4 text-red-500 font-bold text-4xl uppercase whitespace-nowrap">
+            {Array(20).fill("RISKY SCAM CAUTION").map((t, i) => <span key={i}>{t}</span>)}
+          </div>
+        </div>
+      )}
+
+      {/* Floating Warning Icon for risky tokens */}
+      {isRisky && (
+        <motion.div 
+          animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
+          transition={{ duration: 1, repeat: Infinity }}
+          className="absolute -top-2 -right-2 z-10 bg-red-600 p-1.5 rounded-full border-2 border-white shadow-lg"
+        >
+          <ShieldAlert className="w-5 h-5 text-white" />
+        </motion.div>
+      )}
+
+      <div className="flex items-center justify-between w-full relative z-10">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-lg bg-meme-black border-4 border-messy-border flex items-center justify-center font-display text-2xl text-parchment shadow-[2px_2px_0px_0px_rgba(0,0,0,0.5)] overflow-hidden">
+          <div className={cn(
+            "w-14 h-14 rounded-lg bg-meme-black border-4 flex items-center justify-center font-display text-2xl text-parchment shadow-[2px_2px_0px_0px_rgba(0,0,0,0.5)] overflow-hidden",
+            isRisky ? "border-red-600" : "border-messy-border"
+          )}>
             {token.icon ? (
               <img 
                 src={token.icon} 
@@ -224,13 +275,16 @@ const TokenCard = ({ token, isSelected, onToggle }: TokenCardProps) => {
             </div>
           </div>
           <div>
-            <div className="font-display text-2xl uppercase tracking-wider flex items-center gap-2 text-oven-orange">
+            <div className={cn(
+              "font-display text-2xl uppercase tracking-wider flex items-center gap-2",
+              isRisky ? "text-red-500" : "text-oven-orange"
+            )}>
               {token.symbol}
               {token.risk && (
                 token.risk.isHoneypot ? (
-                  <Ban className="w-5 h-5 text-red-500" title="Possible Honeypot!" />
+                  <Skull className="w-5 h-5 text-red-600 animate-pulse" title="Honeypot Detected!" />
                 ) : isRisky ? (
-                  <ShieldAlert className="w-5 h-5 text-red-500" title="High Risk Token" />
+                  <AlertCircle className="w-5 h-5 text-red-500" title="High Risk Token" />
                 ) : (
                   <ShieldCheck className="w-5 h-5 text-green-500" title="Security Verified" />
                 )
@@ -252,25 +306,50 @@ const TokenCard = ({ token, isSelected, onToggle }: TokenCardProps) => {
         </div>
       </div>
 
-      {token.risk && (isRisky || token.risk.buyTax || token.risk.sellTax) && (
+      {token.risk && (
         <div className={cn(
-          "mt-4 p-2 rounded-xl border-2 flex flex-wrap gap-2 text-[10px] uppercase font-black",
-          isSelected ? "bg-white/10 border-white/20" : "bg-meme-black/5 border-meme-black/10"
+          "mt-4 p-3 rounded-xl border-2 flex flex-col gap-3 relative z-10",
+          isSelected 
+            ? (isRisky ? "bg-red-500/10 border-red-500/30" : "bg-white/10 border-white/20") 
+            : (isRisky ? "bg-red-950/20 border-red-900/30" : "bg-meme-black/5 border-meme-black/10")
         )}>
-          {token.risk.isHoneypot && <Badge variant="destructive" className="bg-red-600">HONEYPOT</Badge>}
-          {token.risk.isUnverified && <Badge variant="outline" className="text-orange-500 border-orange-500">UNVERIFIED</Badge>}
-          {token.risk.isPhishing && <Badge variant="destructive" className="bg-red-800">SCAM</Badge>}
-          {(token.risk.buyTax || token.risk.sellTax) && (
-            <span className="flex items-center gap-1">
-              TAX: {token.risk.buyTax || '0'}% | {token.risk.sellTax || '0'}%
-            </span>
-          )}
-          <span className={cn(
-            "ml-auto font-mono",
-            token.risk.score > 80 ? "text-green-500" : token.risk.score > 50 ? "text-orange-500" : "text-red-500"
-          )}>
-            SAFETY: {token.risk.score}/100
-          </span>
+          {/* Status Badges */}
+          <div className="flex flex-wrap gap-2">
+            {token.risk.isHoneypot && <Badge variant="destructive" className="bg-red-600 animate-bounce">HONEYPOT</Badge>}
+            {token.risk.isUnverified && <Badge variant="outline" className="text-orange-500 border-orange-500">UNVERIFIED SOURCE</Badge>}
+            {token.risk.isPhishing && <Badge variant="destructive" className="bg-red-800 uppercase tracking-widest">PHISHING SCAM</Badge>}
+            {token.risk.score < 50 && <Badge className="bg-red-500 text-white border-2 border-red-700">LOW SAFETY</Badge>}
+          </div>
+
+          <div className="flex items-center justify-between gap-2 border-t border-dashed border-white/10 pt-2">
+            {/* Taxes */}
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col">
+                <span className="text-[8px] font-black text-parchment/40 uppercase">Buy Tax</span>
+                <span className={cn("text-xs font-mono font-bold", parseFloat(token.risk.buyTax || "0") > 10 ? "text-red-500" : "text-crust")}>
+                  {token.risk.buyTax || '0'}%
+                </span>
+              </div>
+              <div className="w-px h-6 bg-white/10" />
+              <div className="flex flex-col">
+                <span className="text-[8px] font-black text-parchment/40 uppercase">Sell Tax</span>
+                <span className={cn("text-xs font-mono font-bold", parseFloat(token.risk.sellTax || "0") > 10 ? "text-red-500" : "text-crust")}>
+                  {token.risk.sellTax || '0'}%
+                </span>
+              </div>
+            </div>
+
+            {/* Score */}
+            <div className="text-right flex flex-col">
+              <span className="text-[8px] font-black text-parchment/40 uppercase tracking-widest">Safety Rating</span>
+              <span className={cn(
+                "text-sm font-mono font-black",
+                token.risk.score > 80 ? "text-green-500" : token.risk.score > 50 ? "text-orange-500" : "text-red-500 text-shadow-red"
+              )}>
+                {token.risk.score}/100
+              </span>
+            </div>
+          </div>
         </div>
       )}
 
@@ -278,10 +357,10 @@ const TokenCard = ({ token, isSelected, onToggle }: TokenCardProps) => {
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-3 bg-red-500/20 border-2 border-red-500 p-2 rounded-xl flex items-center gap-2 text-[10px] text-red-500 font-bold"
+          className="mt-3 bg-red-600/30 border-2 border-red-600 p-2 rounded-xl flex items-center gap-2 text-[10px] text-red-100 font-bold shadow-lg"
         >
-          <AlertCircle className="w-4 h-4" />
-          DYOR! THIS TOKEN HAS RED FLAGS. BAKE WITH CAUTION.
+          <Zap className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+          DYOR! CHEF SAYS THIS INGREDIENT MIGHT BE ROTTEN. PROCEED WITH EXTREME CAUTION.
         </motion.div>
       )}
     </motion.div>
@@ -303,7 +382,7 @@ const CONTRACT_ADDRESSES: Record<string, string> = {
   polygon: "0xDD76B610865cc82196AaB39d73E6028a5d96C7Aa",
   avalanche: "0xDD76B610865cc82196AaB39d73E6028a5d96C7Aa",
   bsc: "0x6f2a94532a391aa66a79098cab033dd303bd2790",
-  arbitrum: "0x0000000000000000000000000000000000000000",
+  arbitrum: "0x12b3773be0B88f43E64b979bBC3d8bb6E59dFAAb",
 };
 
 const CRUMB_TOKEN_BASE = "0xa6de7624947d2b56d5d3f0351452d369428cec73";
@@ -351,7 +430,10 @@ export default function App() {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [selectedTokens, setSelectedTokens] = useState<Set<string>>(new Set());
   const [isBaking, setIsBaking] = useState(false);
+  const [isApprovingAll, setIsApprovingAll] = useState(false);
+  const [hasBakeError, setHasBakeError] = useState(false);
   const [bakeProgress, setBakeProgress] = useState(0);
+  const [approveProgress, setApproveProgress] = useState(0);
   const [account, setAccount] = useState<string | null>(null);
   const [isLoadingPrices, setIsLoadingPrices] = useState(false);
   const [isLoadingRisk, setIsLoadingRisk] = useState(false);
@@ -366,17 +448,33 @@ export default function App() {
 
   // Fetch real $CRUMB balance from Base
   const fetchCrumbBalance = useCallback(async (userAddress: string) => {
-    if (selectedNetwork.id !== 'base' || !window.ethereum) return;
+    if (!window.ethereum) return;
     
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
+      const network = await provider.getNetwork();
+      
+      // Only fetch if we are actually connected to Base (8453)
+      if (network.chainId !== 8453n) {
+        console.log("Not on Base, skipping $CRUMB balance fetch");
+        return;
+      }
+
       const crumbContract = new ethers.Contract(CRUMB_TOKEN_BASE, ["function balanceOf(address) view returns (uint256)"], provider);
+      
+      // Check if code exists at address
+      const code = await provider.getCode(CRUMB_TOKEN_BASE);
+      if (code === "0x") {
+        console.warn("$CRUMB token not found at address on this network");
+        return;
+      }
+
       const balance = await crumbContract.balanceOf(userAddress);
       setCrumbBalance(ethers.formatUnits(balance, 18));
     } catch (err) {
       console.error("Error fetching $CRUMB balance:", err);
     }
-  }, [selectedNetwork.id]);
+  }, []);
 
   // Fetch real-time prices from DexScreener (more resilient implementation)
   const fetchPrices = async () => {
@@ -588,6 +686,56 @@ export default function App() {
   }, [ALCHEMY_KEY]);
 
   useEffect(() => {
+    if (typeof window.ethereum !== 'undefined') {
+      const handleChainChanged = (chainIdHex: string) => {
+        const chainId = parseInt(chainIdHex, 16);
+        const network = NETWORKS.find(n => n.chainId === chainId);
+        if (network) {
+          setSelectedNetwork(network);
+        }
+      };
+
+      const handleAccountsChanged = (accounts: string[]) => {
+        if (accounts.length > 0) {
+          setAccount(accounts[0]);
+        } else {
+          setAccount(null);
+        }
+      };
+
+      window.ethereum.on('chainChanged', handleChainChanged);
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+
+      // Initial sync
+      const syncWallet = async () => {
+        try {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const network = await provider.getNetwork();
+          const accounts = await provider.listAccounts();
+          
+          if (accounts.length > 0) {
+            setAccount(accounts[0].address);
+          }
+          
+          const matchedNetwork = NETWORKS.find(n => n.chainId === Number(network.chainId));
+          if (matchedNetwork) {
+            setSelectedNetwork(matchedNetwork);
+          }
+        } catch (err) {
+          console.error("Initial wallet sync failed", err);
+        }
+      };
+      
+      syncWallet();
+
+      return () => {
+        window.ethereum.removeListener('chainChanged', handleChainChanged);
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+      };
+    }
+  }, []);
+
+  useEffect(() => {
     if (account) {
       fetchRealBalances(account, selectedNetwork);
       fetchCrumbBalance(account);
@@ -605,6 +753,60 @@ export default function App() {
       return () => clearInterval(interval);
     }
   }, [tokens.length, selectedNetwork.id]);
+
+  // Helper to switch network in wallet
+  const switchNetwork = async (network: Network) => {
+    if (!window.ethereum || !network.chainId) {
+      setSelectedNetwork(network);
+      return;
+    }
+
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: `0x${network.chainId.toString(16)}` }],
+      });
+      setSelectedNetwork(network);
+    } catch (switchError: any) {
+      // If the chain has not been added to MetaMask, we can try to add it
+      if (switchError.code === 4902) {
+        try {
+          const rpcUrls: Record<string, string[]> = {
+            base: ['https://mainnet.base.org'],
+            optimism: ['https://mainnet.optimism.io'],
+            polygon: ['https://polygon-rpc.com'],
+            avalanche: ['https://api.avax.network/ext/bc/C/rpc'],
+            bsc: ['https://bsc-dataseed.binance.org'],
+            arbitrum: ['https://arb1.arbitrum.io/rpc'],
+          };
+
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainId: `0x${network.chainId.toString(16)}`,
+                chainName: network.name,
+                rpcUrls: rpcUrls[network.id] || [],
+                nativeCurrency: {
+                  name: network.nativeCurrency,
+                  symbol: network.nativeCurrency,
+                  decimals: 18,
+                },
+              },
+            ],
+          });
+          setSelectedNetwork(network);
+        } catch (addError) {
+          console.error("User rejected adding the network", addError);
+        }
+      } else {
+        console.error("Failed to switch network", switchError);
+        // Still select the network in UI even if wallet switch fails, 
+        // handleBake will check current chain anyway
+        setSelectedNetwork(network);
+      }
+    }
+  };
 
   const connectWallet = async () => {
     if (typeof window.ethereum !== 'undefined') {
@@ -629,6 +831,90 @@ export default function App() {
     }
     setSelectedTokens(newSelected);
   };
+  
+  const handleApproveAll = async () => {
+    if (selectedTokens.size === 0) return;
+    if (!window.ethereum) {
+      alert("Please install a wallet like MetaMask to approve tokens!");
+      return;
+    }
+
+    setIsApprovingAll(true);
+    setHasBakeError(false);
+    setApproveProgress(0);
+    setBakingStatus("Kitchen Prep: Mass Approving...");
+
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const network = await provider.getNetwork();
+      
+      if (selectedNetwork.chainId && network.chainId !== BigInt(selectedNetwork.chainId)) {
+        throw new Error(`Network Mismatch! Please switch to ${selectedNetwork.name} in your wallet.`);
+      }
+
+      const signer = await provider.getSigner();
+      const userAddress = await signer.getAddress();
+      const sweeperAddress = CONTRACT_ADDRESSES[selectedNetwork.id];
+      
+      const selectedTokenData = tokens.filter(t => selectedTokens.has(t.id));
+      let approvedCount = 0;
+
+      for (let i = 0; i < selectedTokenData.length; i++) {
+        const token = selectedTokenData[i];
+        if (token.id === "0x0000000000000000000000000000000000000000") continue;
+
+        const code = await provider.getCode(token.id);
+        if (code === "0x") continue;
+
+        const tokenContract = new ethers.Contract(token.id, ERC20_ABI, signer);
+        
+        let decimals = 18;
+        try {
+          decimals = await tokenContract.decimals();
+        } catch (err) {
+          console.warn(`Could not fetch decimals for ${token.symbol}. Defaulting to 18.`, err);
+        }
+
+        const amount = ethers.parseUnits(token.balance, decimals);
+        
+        let allowance = 0n;
+        try {
+          allowance = await tokenContract.allowance(userAddress, sweeperAddress);
+        } catch (allowanceErr) {
+          console.error(`Error checking allowance for ${token.symbol}:`, allowanceErr);
+          continue;
+        }
+        
+        if (allowance < amount) {
+          setBakingStatus(`Approving ${token.symbol}...`);
+          const approveTx = await tokenContract.approve(sweeperAddress, ethers.MaxUint256);
+          await approveTx.wait();
+          approvedCount++;
+        }
+        
+        const progress = ((i + 1) / selectedTokenData.length) * 100;
+        setApproveProgress(progress);
+        setBakeProgress(progress); // Sync with mascot progress too
+      }
+
+      setBakingStatus(approvedCount > 0 ? `Finished! Approved ${approvedCount} ingredients.` : "All tokens already approved!");
+      setTimeout(() => {
+        setIsApprovingAll(false);
+        setBakingStatus("");
+        setBakeProgress(0);
+      }, 3000);
+
+    } catch (e: any) {
+      console.error("Bulk approval failed!", e);
+      setHasBakeError(true);
+      setBakingStatus(`Approval Failed: ${e.reason || e.message || "Unknown Error"}`);
+      setTimeout(() => {
+        setIsApprovingAll(false);
+        setBakeProgress(0);
+        setTimeout(() => setHasBakeError(false), 5000);
+      }, 3000);
+    }
+  };
 
   const handleBake = async () => {
     if (selectedTokens.size === 0) return;
@@ -638,11 +924,18 @@ export default function App() {
     }
     
     setIsBaking(true);
+    setHasBakeError(false);
     setBakeProgress(0);
     setBakingStatus("Preheating Oven...");
 
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
+      
+      const network = await provider.getNetwork();
+      if (selectedNetwork.chainId && network.chainId !== BigInt(selectedNetwork.chainId)) {
+        throw new Error(`Network Mismatch! Your wallet is on Chain ${network.chainId}, but you selected ${selectedNetwork.name} (Chain ${selectedNetwork.chainId}). Please switch your network in your wallet.`);
+      }
+
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
       const sweeperAddress = CONTRACT_ADDRESSES[selectedNetwork.id];
@@ -659,29 +952,40 @@ export default function App() {
       setBakeProgress(20);
       setBakingStatus("Gathering Ingredients (Approvals)...");
       
+      // Filter out tokens that don't exist on this network
+      const validTokenData: typeof selectedTokenData = [];
+
       for (let i = 0; i < selectedTokenData.length; i++) {
         const token = selectedTokenData[i];
-        if (token.id === "0x0000000000000000000000000000000000000000") continue; // Skip native ETH if applicable
+        if (token.id === "0x0000000000000000000000000000000000000000") continue;
+
+        const code = await provider.getCode(token.id);
+        if (code === "0x") {
+          console.error(`Token ${token.symbol} (${token.id}) has no code on this network! Skipping.`);
+          continue;
+        }
+        
+        validTokenData.push(token);
 
         const tokenContract = new ethers.Contract(token.id, ERC20_ABI, signer);
         
-        // Safety check for decimals() call to prevent "could not decode result data" error
+        // Safety check for decimals() call
         let decimals = 18;
         try {
-          // Check if contract has code at this address on current network
-          const code = await provider.getCode(token.id);
-          if (code === "0x") {
-            console.warn(`Token ${token.symbol} not found on this network. Using default decimals.`);
-          } else {
-            decimals = await tokenContract.decimals();
-          }
+          decimals = await tokenContract.decimals();
         } catch (err) {
           console.warn(`Could not fetch decimals for ${token.symbol}. Defaulting to 18.`, err);
         }
 
         const amount = ethers.parseUnits(token.balance, decimals);
         
-        const allowance = await tokenContract.allowance(userAddress, sweeperAddress);
+        let allowance = 0n;
+        try {
+          allowance = await tokenContract.allowance(userAddress, sweeperAddress);
+        } catch (allowanceErr) {
+          console.error(`Error checking allowance for ${token.symbol}:`, allowanceErr);
+          continue;
+        }
         
         if (allowance < amount) {
           setBakingStatus(`Approving ${token.symbol}...`);
@@ -693,25 +997,26 @@ export default function App() {
         setBakeProgress(progress);
       }
 
+      if (validTokenData.length === 0) {
+        throw new Error("No valid tokens found on this chain. Are you sure your ingredients (tokens) are for this network?");
+      }
+
       // 2. Baking Step
       setBakeProgress(70);
       setBakingStatus("In the Oven! Baking Crumbs...");
       
-      const tokenAddresses = selectedTokenData.map(t => t.id);
-      const amounts = await Promise.all(selectedTokenData.map(async t => {
+      const tokenAddresses = validTokenData.map(t => t.id);
+      const amounts = await Promise.all(validTokenData.map(async t => {
         const tokenContract = new ethers.Contract(t.id, ERC20_ABI, provider);
         let decimals = 18;
         try {
-          const code = await provider.getCode(t.id);
-          if (code !== "0x") {
-            decimals = await tokenContract.decimals();
-          }
+          decimals = await tokenContract.decimals();
         } catch (err) {
           console.warn(`Error fetching decimals for ${t.id}`, err);
         }
         return ethers.parseUnits(t.balance, decimals);
       }));
-      const minOuts = selectedTokenData.map(() => 0); // User should ideally set slippage
+      const minOuts = validTokenData.map(() => 0); // User should ideally set slippage
 
       const tx = await contract.bakeCrumbs(tokenAddresses, amounts, minOuts);
       setBakingStatus("Final Glaze... Waiting for Confirmation");
@@ -721,13 +1026,14 @@ export default function App() {
       setBakingStatus("Baguette Secured! Profit Freshly Baked.");
       
       // Calculate bonus reward based on value (1 CRUMB per 0.001 ETH worth of crumbs)
-      const totalUsdValue = selectedTokenData.reduce((acc, t) => acc + (t.valueUsd || 0), 0);
+      const totalUsdValue = validTokenData.reduce((acc, t) => acc + (t.valueUsd || 0), 0);
       const bonusAmount = Math.max(10, Math.floor(totalUsdValue * 100)); // Minimum 10 $CRUMB
       setEarnedBonus(bonusAmount.toString());
       
       setTimeout(() => {
         setIsBaking(false);
-        setTokens(tokens.filter(t => !selectedTokens.has(t.id)));
+        const validIds = new Set(validTokenData.map(t => t.id));
+        setTokens(tokens.filter(t => !validIds.has(t.id)));
         setSelectedTokens(new Set());
         setBakingStatus("");
         if (selectedNetwork.id === 'base') {
@@ -737,10 +1043,13 @@ export default function App() {
 
     } catch (e: any) {
       console.error("Baking failed!", e);
+      setHasBakeError(true);
       setBakingStatus(`Bake Failed: ${e.reason || e.message || "Unknown Error"}`);
       setTimeout(() => {
         setIsBaking(false);
         setBakeProgress(0);
+        // We keep hasBakeError true for a bit longer to show the sad mascot
+        setTimeout(() => setHasBakeError(false), 5000);
       }, 3000);
     }
   };
@@ -821,7 +1130,7 @@ export default function App() {
               return (
                 <button
                   key={network.id}
-                  onClick={() => setSelectedNetwork(network)}
+                  onClick={() => switchNetwork(network)}
                   style={{ transform: `rotate(${rotation}deg)` }}
                   className={cn(
                     "sticker-button group flex flex-col items-center",
@@ -1001,7 +1310,7 @@ export default function App() {
             {/* Left Column: Baker & Bake Action */}
             <div className="lg:col-span-5 space-y-12">
               <Card className="sweeper-card text-center">
-                <MemeMascot progress={bakeProgress} isBaking={isBaking} />
+                <MemeMascot progress={bakeProgress} isBaking={isBaking} hasError={hasBakeError} />
                 
                 <div className="space-y-10">
                   <div className="bg-meme-black border-4 border-messy-border p-8 rounded-lg shadow-[inset_0_0_20px_rgba(255,140,0,0.1)]">
@@ -1023,21 +1332,40 @@ export default function App() {
                     <Progress value={bakeProgress} className="h-4 bg-bakery-blue/30 border-2 border-messy-border rounded-full overflow-hidden shadow-inner" />
                   </div>
 
-                  <Button 
-                    disabled={selectedTokens.size === 0 || isBaking}
-                    onClick={handleBake}
-                    className={cn(
-                      "w-full h-24 text-4xl meme-button shadow-[0_10px_20px_rgba(0,0,0,0.5)] border-4 rounded-lg",
-                      isBaking ? "bg-meme-black text-white/40 border-messy-border" : "bg-oven-orange text-white border-[#ffc482] font-display tracking-widest hover:brightness-110 active:translate-y-1"
-                    )}
-                  >
-                    {isBaking ? (
-                      <RefreshCw className="w-10 h-10 animate-spin mr-4" />
-                    ) : (
-                      <Flame className="w-10 h-10 mr-4 fill-white/20" />
-                    )}
-                    {isBaking ? "BAKING..." : `BAKE ${selectedTokens.size} CRUMBS`}
-                  </Button>
+                  <div className="flex gap-4">
+                    <Button 
+                      disabled={selectedTokens.size === 0 || isBaking || isApprovingAll}
+                      onClick={handleApproveAll}
+                      variant="outline"
+                      className={cn(
+                        "flex-1 h-24 text-xl meme-button shadow-[0_5px_10px_rgba(0,0,0,0.3)] border-4 rounded-lg",
+                        isApprovingAll ? "bg-meme-black text-white/40 border-messy-border" : "bg-white text-oven-orange border-oven-orange/30 font-display tracking-widest hover:bg-oven-orange/5 active:translate-y-1"
+                      )}
+                    >
+                      {isApprovingAll ? (
+                        <RefreshCw className="w-8 h-8 animate-spin mr-3" />
+                      ) : (
+                        <ShieldCheck className="w-8 h-8 mr-3 fill-oven-orange/10" />
+                      )}
+                      {isApprovingAll ? "APPROVING..." : "APPROVE ALL"}
+                    </Button>
+
+                    <Button 
+                      disabled={selectedTokens.size === 0 || isBaking || isApprovingAll}
+                      onClick={handleBake}
+                      className={cn(
+                        "flex-[2] h-24 text-4xl meme-button shadow-[0_10px_20px_rgba(0,0,0,0.5)] border-4 rounded-lg",
+                        isBaking ? "bg-meme-black text-white/40 border-messy-border" : "bg-oven-orange text-white border-[#ffc482] font-display tracking-widest hover:brightness-110 active:translate-y-1"
+                      )}
+                    >
+                      {isBaking ? (
+                        <RefreshCw className="w-10 h-10 animate-spin mr-4" />
+                      ) : (
+                        <Flame className="w-10 h-10 mr-4 fill-white/20" />
+                      )}
+                      {isBaking ? "BAKING..." : `BAKE ${selectedTokens.size} CRUMBS`}
+                    </Button>
+                  </div>
                   
                   <p className="text-[10px] text-parchment/30 font-black uppercase tracking-widest flex items-center justify-center gap-3">
                     <TrendingUp className="w-4 h-4 text-meme-green" />
@@ -1214,7 +1542,7 @@ export default function App() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
               {[
-                { name: "Legendary Glow Pepe", image: regeneratedNftImage, cost: 5000, rarity: "Legendary", emoji: "🥖", color: "from-yellow-400 to-amber-600", desc: "Forged in the heart of the CrustFund oven with extra gwei." },
+                { name: "Legendary Glow Pepe", image: "/crustsweep.png", cost: 5000, rarity: "Legendary", emoji: "🥖", color: "from-yellow-400 to-amber-600", desc: "Forged in the heart of the CrustFund oven with extra gwei." },
                 { name: "Realistic Pepe Burger", image: "/nft_rare.png", cost: 1000, rarity: "Rare", emoji: "🍞", color: "from-orange-500 to-red-700", desc: "Deliciously rare and slightly over-proofed." },
                 { name: "Degen Bread Sticker", image: "/nft_comman.png", cost: 500, rarity: "Common", emoji: "🥯", color: "from-slate-400 to-slate-600", desc: "A classic crumb-sweeper essential sticker." },
               ].map((nft, i) => (
